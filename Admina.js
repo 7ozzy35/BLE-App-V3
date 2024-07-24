@@ -92,17 +92,18 @@ const App = ({ navigation }) => {
       <Text style={styles.subHeaderText}>KAYITLI {users.length} KULLANICI VAR</Text>
       <TextInput
         style={styles.input}
-        placeholder="KULLANICI ADI"
+        placeholder="KULLANICI ADI-SOYADI"
         placeholderTextColor={'#686D76'}
         value={name}
         onChangeText={setName}
       />
       <TextInput
         style={styles.input}
-        placeholder="KULLANICI SOYADI"
+        placeholder="KULLANICI TELEFON NUMARASI"
         placeholderTextColor={'#686D76'}
         value={surname}
         onChangeText={setSurname}
+        keyboardType='phone-pad'
       />
       <TextInput
         style={styles.input}
@@ -110,6 +111,7 @@ const App = ({ navigation }) => {
         placeholderTextColor={'#686D76'}
         value={cardNumber}
         onChangeText={setCardNumber}
+        keyboardType='numeric'
       />
       <TextInput
         style={styles.input}
@@ -117,6 +119,7 @@ const App = ({ navigation }) => {
         placeholderTextColor={'#686D76'}
         value={apartmentNumber}
         onChangeText={(text) => setApartmentNumber(text.toLowerCase())}
+        keyboardType='numeric'
       />
       <TouchableOpacity style={styles.button} onPress={handleAddUser}>
         <Text style={styles.buttonText}>EKLE</Text>

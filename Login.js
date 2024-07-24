@@ -1,18 +1,19 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { TextInputMask } from 'react-native-masked-text';
 
 const LoginScreen = ({ navigation }) => {
-  const [username, setUsername] = useState('');
+  const [phone, setphone] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
   const handleLogin = () => {
-    if (username === 'A' && password === 'A') {
+    if (phone === '1' && password === '1') {
       navigation.navigate('adminf');
-    } else if (username === 'U' && password === 'U') {
+    } else if (phone === '2' && password === '2') {
       navigation.navigate('User');
     } else {
-      setError('Kullanıcı adı veya şifre hatalı!');
+      setError('Telefon numarası veya şifre hatalı!');
     }
   };
 
@@ -22,19 +23,23 @@ const LoginScreen = ({ navigation }) => {
         <Text style={styles.title}>Giriş Yap</Text>
         {error ? <Text style={styles.errorText}>{error}</Text> : null}
         <TextInput
+          
           style={styles.input}
-          placeholder="Kullanıcı Adı"
+          placeholder="(5xx)-xxx-xxxx"
           placeholderTextColor={'black'}
-          value={username}
-          onChangeText={setUsername}
+          value={phone}
+          onChangeText={setphone}
+          keyboardType="phone-pad"
         />
         <TextInput
+          
           style={styles.input}
           placeholder="Şifre"
           placeholderTextColor={'black'}
           value={password}
           onChangeText={setPassword}
           secureTextEntry={true}
+          keyboardType="numeric"
         />
         <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
           <Text style={styles.buttonText}>Giriş Yap</Text>
@@ -79,7 +84,7 @@ const styles = StyleSheet.create({
     color:'darkblue',
   },
   loginButton: {
-    backgroundColor: '#0066CC',
+    backgroundColor: '#2E236C',
     padding: 10,
     borderRadius: 5,
     width: '100%',
