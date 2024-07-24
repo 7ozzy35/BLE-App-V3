@@ -2,6 +2,8 @@ apply plugin: "com.android.application"
 apply plugin: "org.jetbrains.kotlin.android"
 apply plugin: "com.facebook.react"
 
+//icon için eklendi
+apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"
 //firebase için eklendi
 apply plugin: 'com.google.gms.google-services'
 

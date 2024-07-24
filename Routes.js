@@ -8,6 +8,7 @@ import { Device } from 'react-native-ble-plx'
 import { DeviceProvider } from './Context/DevicesContext'
 import Adminf from './Adminf'
 import Admina from './Admina'
+import Home from './Home'
 
 
 const Stack = createStackNavigator();
@@ -18,6 +19,7 @@ const routes = () => {
     <NavigationContainer> 
         <DeviceProvider>
         <Stack.Navigator initialRouteName='LoginTab'>
+        <Stack.Screen name='Home' component={Home} options={{ headerShown: false }} />
         <Stack.Screen name='Login' component={Login} options={{ headerShown: false }} />
         <Stack.Screen name='User' component={User} options={{ headerShown: false }} />
         <Stack.Screen name='adminf' component={Adminf} options={{ headerShown: false }} />
