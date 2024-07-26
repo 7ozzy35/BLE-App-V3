@@ -1,42 +1,62 @@
-import React, { useContext,useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { DeviceContext } from './Context/DevicesContext';
-import { Buffer } from 'buffer'; // buffer paketini içe aktarın
+import { Buffer } from 'buffer';
 import auth from '@react-native-firebase/auth';
-
-
 import firestore from '@react-native-firebase/firestore';
 
 const login = async () => {
-    
-      console.log("autha erişildi")
-      auth()
-          .signInWithEmailAndPassword('7ozzy35@gmail.com', '123456')
-          .then(() => {
-              console.log('User account signed in!');
-          })
-          .catch(error => {
-              if (error.code === 'auth/email-already-in-use') {
-                  console.log('That email address is already in use!');
-              }
+  console.log("autha erişildi");
+  auth()
+    .signInWithEmailAndPassword('7ozzy35@gmail.com', '123456')
+    .then(() => {
+      console.log('User account signed in!');
+    })
+    .catch(error => {
+      if (error.code === 'auth/email-already-in-use') {
+        console.log('That email address is already in use!');
+      }
 
-              if (error.code === 'auth/invalid-email') {
-                  console.log('That email address is invalid!');
-              }
+      if (error.code === 'auth/invalid-email') {
+        console.log('That email address is invalid!');
+      }
 
-              console.error(error);
-          });
-
-     
-
-
-    }
+      console.error(error);
+    });
+};
 
 const Home = () => {
+  const [adSoyad, setAdSoyad] = useState('');
+  const [daireNo, setDaireNo] = useState('');
+  const [email, setEmail] = useState('');
+  const [kartNo, setKartNo] = useState('');
+  const [telefonNo, setTelefonNo] = useState('');
+  const [yetki, setYetki] = useState(false);
 
-  const users = firestore().collection('Users').doc("7zRkAweqitW62RO0Qkk9gI2beEl2");
-  const usersCollection = firestore().collection('Users').doc("7zRkAweqitW62RO0Qkk9gI2beEl2").get();
   const { connectedDevice, deviceData, setDeviceData } = useContext(DeviceContext);
+
+  useEffect(() => {
+    const getDataFireStore = async () => {
+      try {
+        const userDoc = await firestore().collection('Users').doc("7zRkAweqitW62RO0Qkk9gI2beEl2").get();
+        if (userDoc.exists) {
+          const userData = userDoc.data();
+          setAdSoyad(userData["Ad Soyad"]);
+          setDaireNo(userData["Daire No"]);
+          setEmail(userData["Email"]);
+          setKartNo(userData["Kart No"]);
+          setTelefonNo(userData["Telefon No"]);
+          setYetki(userData["Yetki"]);
+        } else {
+          console.log('No such document!');
+        }
+      } catch (error) {
+        console.error('Error getting document:', error);
+      }
+    };
+
+    getDataFireStore();
+  }, []);
 
   const sendDataToDevice = async (device, serviceUUID, characteristicUUID, data) => {
     try {
@@ -47,50 +67,12 @@ const Home = () => {
       );
       console.log('Data sent:', characteristic);
 
-      // Veriyi gönderdikten sonra, cihazdan gelen yanıtı oku
       const response = await device.readCharacteristicForService(serviceUUID, characteristicUUID);
       const responseData = Buffer.from(response.value, 'base64').toString('ascii');
       console.log('Response data:', responseData);
       setDeviceData(responseData);
-
     } catch (error) {
       console.error('Failed to send data or read response:', error);
-    }
-  };
-
-  const getDataFireStore = async () => {
-
-    console.log("getDataFirestore func çağırıldı")
-   
-    console.log("gelen user collectler::>>", users)
-    console.log("gelen eriler::>>", usersCollection)
-
-
-
-  }
-  const subscriber = firestore()
-  .collection('Users')
-  .doc("7zRkAweqitW62RO0Qkk9gI2beEl2")
-  .onSnapshot(documentSnapshot => {
-    if (documentSnapshot.exists) {
-      console.log('User data: ', documentSnapshot.data());
-    } else {
-      console.log('No such document!');
-    }
-  }, error => {
-    console.error('Error getting document:', error);
-  });
-  
-
-
-  const readDataFromDevice = async (device, serviceUUID, characteristicUUID) => {
-    try {
-      const characteristic = await device.readCharacteristicForService(serviceUUID, characteristicUUID);
-      const data = Buffer.from(characteristic.value, 'base64').toString('ascii');
-      console.log('Data read:', data);
-      setDeviceData(data);
-    } catch (error) {
-      console.error('Failed to read data:', error);
     }
   };
 
@@ -111,11 +93,26 @@ const Home = () => {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity onPress={() => { login() }} style={styles.button}>
-        <View style={styles.buttonContent}>
-          <Text style={styles.text}>Kapı Aç</Text>
-        </View>
-      </TouchableOpacity>
+      <View style={{ flexDirection: "row" }}>
+        <Text style={styles.mainText}>Ad Soyad:</Text>
+        <Text style={styles.mainText}>{adSoyad}</Text>
+      </View>
+      <View style={{ flexDirection: "row" }}>
+        <Text style={styles.mainText}>Daire No:</Text>
+        <Text style={styles.mainText}>{daireNo}</Text>
+      </View>
+      <View style={{ flexDirection: "row" }}>
+        <Text style={styles.mainText}>Kart No:</Text>
+        <Text style={styles.mainText}>{kartNo}</Text>
+      </View>
+      <View style={{ flexDirection: "row" }}>
+        <Text style={styles.mainText}>Telefon:</Text>
+        <Text style={styles.mainText}>{telefonNo}</Text>
+      </View>
+      <View style={{ flexDirection: "row" }}>
+        <Text style={styles.mainText}>Yetki:</Text>
+        <Text style={styles.mainText}>{yetki ? 'Evet' : 'Hayır'}</Text>
+      </View>
       <TouchableOpacity onPress={sendata2} style={styles.button}>
         <View style={styles.buttonContent}>
           <Text style={styles.text}>Kapı Kapat</Text>
@@ -127,13 +124,8 @@ const Home = () => {
         </View>
       </TouchableOpacity>
     </View>
-
   );
 };
-
-
-
-
 
 const styles = StyleSheet.create({
   container: {
@@ -142,11 +134,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#f5fcff',
   },
+  mainText: {
+    color: "blue",
+    margin: 4
+  },
   button: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    backgroundColor: '#6200ea',
+    width: 250,
+    height: 80,
+    borderRadius: 20,
+    backgroundColor: 'lightgreen',
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#000',
@@ -154,7 +150,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.8,
     shadowRadius: 2,
     elevation: 5,
-    marginVertical: 10, // Düğmeler arasına dikey boşluk ekler
+    marginVertical: 10,
   },
   buttonContent: {
     justifyContent: 'center',
@@ -165,7 +161,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 18,
     fontWeight: 'bold',
-    textAlign: 'center', // Metni ortalar
+    textAlign: 'center',
   },
 });
 
