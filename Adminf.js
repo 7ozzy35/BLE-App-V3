@@ -41,6 +41,14 @@ const AdminScreen = ({ navigation }) => {
             </TouchableOpacity>
           </View>)}
       </View>
+
+      {/*  Home sayfası yönlendirme butonu  */}
+      <View style={{backgroundColor:"green",width:60,position:"absolute",top:150,right:10,height:60,borderRadius:8}}>
+        <TouchableOpacity style={{justifyContent:"center",alignItems:"center",flex:1}} onPress={()=>{navigation.navigate("Home")}}>
+          <Text> Home </Text>
+        </TouchableOpacity>
+      </View>
+      
     </View>
   );
 };

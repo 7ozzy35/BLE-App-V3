@@ -27,6 +27,8 @@ const routes = () => {
         <Stack.Screen name='SignUp' component={SignUp} options={{ headerShown: false }} />
         <Stack.Screen name='adminf' component={Adminf} options={{ headerShown: false }} />
         <Stack.Screen name='Admina' component={Admina} options={{ headerShown: false }} />
+        <Stack.Screen name='Home' component={Home} options={{ headerShown: false }} />
+
 
         
       </Stack.Navigator>
