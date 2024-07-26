@@ -26,7 +26,8 @@ const RegisterScreen = () => {
         'Kart No': KartNo,
         'Telefon No': TelefonNo,
         'Yetki': false,
-        'Şifre': Şifre
+        'Şifre': Şifre,
+        
       });
       setError('Kayıt başarıyla tamamlandı!');
     } catch (e) {
