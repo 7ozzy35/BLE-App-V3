@@ -9,6 +9,8 @@ import { DeviceProvider } from './Context/DevicesContext'
 import Adminf from './Adminf'
 import Admina from './Admina'
 import Home from './Home'
+import SignUp from './SignUp'
+
 
 
 const Stack = createStackNavigator();
@@ -22,6 +24,7 @@ const routes = () => {
         
         <Stack.Screen name='Login' component={Login} options={{ headerShown: false }} />
         <Stack.Screen name='User' component={User} options={{ headerShown: false }} />
+        <Stack.Screen name='SignUp' component={SignUp} options={{ headerShown: false }} />
         <Stack.Screen name='adminf' component={Adminf} options={{ headerShown: false }} />
         <Stack.Screen name='Admina' component={Admina} options={{ headerShown: false }} />
         <Stack.Screen name='Home' component={Home} options={{ headerShown: false }} />

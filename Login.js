@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import firestore from '@react-native-firebase/firestore';
+
 
 const LoginScreen = ({ navigation }) => {
   const [phone, setPhone] = useState('');
@@ -51,7 +52,7 @@ const LoginScreen = ({ navigation }) => {
         {error ? <Text style={styles.errorText}>{error}</Text> : null}
         <TextInput
           style={styles.input}
-          placeholder="(5xx)-xxx-xxxx"
+          placeholder="(05xx)-xxx-xxxx"
           placeholderTextColor={'black'}
           value={phone}
           onChangeText={setPhone}
@@ -73,6 +74,9 @@ const LoginScreen = ({ navigation }) => {
         </View>
         <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
           <Text style={styles.buttonText}>Giriş Yap</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.loginButton} onPress={() => { navigation.navigate('SignUp') }}>
+          <Text style={styles.buttonText}>Kayıt Ol</Text>
         </TouchableOpacity>
       </View>
     </View>
