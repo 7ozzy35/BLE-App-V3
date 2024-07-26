@@ -52,6 +52,7 @@ const RegisterScreen = () => {
           placeholderTextColor={'black'}
           value={DaireNo}
           onChangeText={setDaireNo}
+          keyboardType='numeric'
         />
         <TextInput
           style={styles.input}
@@ -59,6 +60,7 @@ const RegisterScreen = () => {
           placeholderTextColor={'black'}
           value={KartNo}
           onChangeText={setKartNo}
+          keyboardType='numeric'
         />
         <TextInput
           style={styles.input}
@@ -83,6 +85,7 @@ const RegisterScreen = () => {
           value={Şifre}
           onChangeText={setŞifre}
           secureTextEntry={true}
+          keyboardType='numeric'
         />
         <TouchableOpacity style={styles.registerButton} onPress={handleRegister}>
           <Text style={styles.buttonText}>Kayıt Ol</Text>

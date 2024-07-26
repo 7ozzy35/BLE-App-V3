@@ -52,7 +52,7 @@ const LoginScreen = ({ navigation }) => {
         {error ? <Text style={styles.errorText}>{error}</Text> : null}
         <TextInput
           style={styles.input}
-          placeholder="(5xx)-xxx-xxxx"
+          placeholder="(05xx)-xxx-xxxx"
           placeholderTextColor={'black'}
           value={phone}
           onChangeText={setPhone}
