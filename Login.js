@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import firestore from '@react-native-firebase/firestore';
 
 const LoginScreen = ({ navigation }) => {
   const [phone, setPhone] = useState('');
@@ -12,13 +13,34 @@ const LoginScreen = ({ navigation }) => {
     setIsPasswordVisible(!isPasswordVisible);
   };
 
-  const handleLogin = () => {
-    if (phone === '1' && password === '1') {
-      navigation.navigate('adminf');
-    } else if (phone === '2' && password === '2') {
-      navigation.navigate('User');
-    } else {
-      setError('Telefon numarası veya şifre hatalı!');
+  const handleLogin = async () => {
+    setError('');
+    try {
+      const userSnapshot = await firestore()
+        .collection('Users')
+        .where('Telefon No', '==', phone)
+        .limit(1)
+        .get();
+
+      if (!userSnapshot.empty) {
+        const userDoc = userSnapshot.docs[0];
+        const userData = userDoc.data();
+
+        if (userData['Şifre'] === password) {
+          if (userData['Yetki']) {
+            navigation.navigate('adminf');
+          } else {
+            navigation.navigate('User');
+          }
+        } else {
+          setError('Şifre hatalı!');
+        }
+      } else {
+        setError('Telefon numarası hatalı!');
+      }
+    } catch (error) {
+      console.error('Error logging in: ', error);
+      setError('Giriş sırasında bir hata oluştu.');
     }
   };
 
@@ -60,7 +82,7 @@ const LoginScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8F4E1', // Turkuaz rengi
+    backgroundColor: '#F8F4E1',
     justifyContent: 'center',
     alignItems: 'center',
   },
