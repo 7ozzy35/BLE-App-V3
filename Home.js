@@ -2,16 +2,40 @@ import React, { useContext,useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { DeviceContext } from './Context/DevicesContext';
 import { Buffer } from 'buffer'; // buffer paketini içe aktarın
+import auth from '@react-native-firebase/auth';
 
 
 import firestore from '@react-native-firebase/firestore';
 
+const login = async () => {
+    
+      console.log("autha erişildi")
+      auth()
+          .signInWithEmailAndPassword('7ozzy35@gmail.com', '123456')
+          .then(() => {
+              console.log('User account signed in!');
+          })
+          .catch(error => {
+              if (error.code === 'auth/email-already-in-use') {
+                  console.log('That email address is already in use!');
+              }
 
+              if (error.code === 'auth/invalid-email') {
+                  console.log('That email address is invalid!');
+              }
+
+              console.error(error);
+          });
+
+     
+
+
+    }
 
 const Home = () => {
 
-  const users = firestore().collection('Users').doc("DsYvP35ytMO5CJHspHGd3RGMYmF3");
-  const usersCollection = firestore().collection('Users').doc("DsYvP35ytMO5CJHspHGd3RGMYmF3").get();
+  const users = firestore().collection('Users').doc("7zRkAweqitW62RO0Qkk9gI2beEl2");
+  const usersCollection = firestore().collection('Users').doc("7zRkAweqitW62RO0Qkk9gI2beEl2").get();
   const { connectedDevice, deviceData, setDeviceData } = useContext(DeviceContext);
 
   const sendDataToDevice = async (device, serviceUUID, characteristicUUID, data) => {
@@ -46,9 +70,15 @@ const Home = () => {
   }
   const subscriber = firestore()
   .collection('Users')
-  .doc("DsYvP35ytMO5CJHspHGd3RGMYmF3")
+  .doc("7zRkAweqitW62RO0Qkk9gI2beEl2")
   .onSnapshot(documentSnapshot => {
-    console.log('User data: ', documentSnapshot.data());
+    if (documentSnapshot.exists) {
+      console.log('User data: ', documentSnapshot.data());
+    } else {
+      console.log('No such document!');
+    }
+  }, error => {
+    console.error('Error getting document:', error);
   });
   
 
@@ -81,7 +111,7 @@ const Home = () => {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity onPress={() => { getDataFireStore() }} style={styles.button}>
+      <TouchableOpacity onPress={() => { login() }} style={styles.button}>
         <View style={styles.buttonContent}>
           <Text style={styles.text}>Kapı Aç</Text>
         </View>

@@ -1,32 +1,13 @@
 {
   "project_info": {
-    "project_number": "474584260566",
-    "project_id": "bledoor-b0862",
-    "storage_bucket": "bledoor-b0862.appspot.com"
+    "project_number": "721408195925",
+    "project_id": "deneme21-9c338",
+    "storage_bucket": "deneme21-9c338.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:474584260566:android:5b0d5922c0c62380d24e77",
-        "android_client_info": {
-          "package_name": "com.taxisqlexam"
-        }
-      },
-      "oauth_client": [],
-      "api_key": [
-        {
-          "current_key": "AIzaSyBihPOmlQVA1biSljOJSEgiey-un7JTBqY"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": []
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:474584260566:android:f176db707116a11ad24e77",
+        "mobilesdk_app_id": "1:721408195925:android:3bf19d6422b60a517c03dc",
         "android_client_info": {
           "package_name": "com.version3"
         }
@@ -34,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBihPOmlQVA1biSljOJSEgiey-un7JTBqY"
+          "current_key": "AIzaSyBFDpKvdR7QjmaLKgbmRisjBdU1xSx0qwA"
         }
       ],
       "services": {
