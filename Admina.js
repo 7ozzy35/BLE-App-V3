@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Alert, ScrollView, StyleSheet, Image, Modal } from 'react-native';
+import firestore from '@react-native-firebase/firestore';
 
 const App = ({ navigation }) => {
   const [name, setName] = useState('');
@@ -12,17 +13,36 @@ const App = ({ navigation }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [searchModalVisible, setSearchModalVisible] = useState(false);
 
-  const handleAddUser = () => {
-    if (cardNumber === '' || apartmentNumber === ''|| name === ''|| surname === '') {
+  useEffect(() => {
+    const fetchUsers = async () => {
+      const usersSnapshot = await firestore().collection('Users').get();
+      const usersList = usersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      console.log("usersSnapshot",usersSnapshot)
+      console.log("usersList",usersList)
+      setUsers(usersList);
+    };
+
+    fetchUsers();
+  }, []);
+
+  const handleAddUser = async () => {
+    if (cardNumber === '' || apartmentNumber === '' || name === '' || surname === '') {
       Alert.alert('Parametreler boş bırakılamaz!');
       return;
     }
+
     const newUser = { name, surname, cardNumber, apartmentNumber };
-    setUsers([...users, newUser]);
-    setName('');
-    setSurname('');
-    setCardNumber('');
-    setApartmentNumber('');
+
+    try {
+      const userDoc = await firestore().collection('Users').add(newUser);
+      setUsers([...users, { id: userDoc.id, ...newUser }]);
+      setName('');
+      setSurname('');
+      setCardNumber('');
+      setApartmentNumber('');
+    } catch (error) {
+      console.error('Error adding user: ', error);
+    }
   };
 
   const handleEditUser = (index) => {
@@ -35,31 +55,46 @@ const App = ({ navigation }) => {
     setModalVisible(true);
   };
 
-  const handleSaveEdit = () => {
+  const handleSaveEdit = async () => {
     if (editIndex !== null) {
-      const updatedUsers = [...users];
-      updatedUsers[editIndex] = { name, surname, cardNumber, apartmentNumber };
-      setUsers(updatedUsers);
-      setName('');
-      setSurname('');
-      setCardNumber('');
-      setApartmentNumber('');
-      setEditIndex(null);
-      setModalVisible(false);
+      const user = users[editIndex];
+      const updatedUser = { name, surname, cardNumber, apartmentNumber };
+
+      try {
+        await firestore().collection('Users').doc(user.id).update(updatedUser);
+        const updatedUsers = [...users];
+        updatedUsers[editIndex] = { id: user.id, ...updatedUser };
+        setUsers(updatedUsers);
+        setName('');
+        setSurname('');
+        setCardNumber('');
+        setApartmentNumber('');
+        setEditIndex(null);
+        setModalVisible(false);
+      } catch (error) {
+        console.error('Error updating user: ', error);
+      }
     }
   };
 
-  const handleDeleteUser = () => {
+  const handleDeleteUser = async () => {
     if (editIndex !== null) {
-      const updatedUsers = [...users];
-      updatedUsers.splice(editIndex, 1);
-      setUsers(updatedUsers);
-      setName('');
-      setSurname('');
-      setCardNumber('');
-      setApartmentNumber('');
-      setEditIndex(null);
-      setModalVisible(false);
+      const user = users[editIndex];
+
+      try {
+        await firestore().collection('Users').doc(user.id).delete();
+        const updatedUsers = [...users];
+        updatedUsers.splice(editIndex, 1);
+        setUsers(updatedUsers);
+        setName('');
+        setSurname('');
+        setCardNumber('');
+        setApartmentNumber('');
+        setEditIndex(null);
+        setModalVisible(false);
+      } catch (error) {
+        console.error('Error deleting user: ', error);
+      }
     }
   };
 
@@ -72,13 +107,18 @@ const App = ({ navigation }) => {
     setSearchText('');
   };
 
-  const filteredUsers = users.filter((user) =>
-    user.apartmentNumber.toLowerCase().includes(searchText) ||
-    user.cardNumber.toLowerCase().includes(searchText)
-    ||
-    user.name.toLowerCase().includes(searchText)||
-    user.surname.toLowerCase().includes(searchText)
-  );
+  const filteredUsers = users.filter((user) => {
+    const apartmentNum = user.apartmentNumber ? user.apartmentNumber.toLowerCase() : '';
+    const cardNum = user.cardNumber ? user.cardNumber.toLowerCase() : '';
+    const userName = user.name ? user.name.toLowerCase() : '';
+    const userSurname = user.surname ? user.surname.toLowerCase() : '';
+    return (
+      apartmentNum.includes(searchText) ||
+      cardNum.includes(searchText) ||
+      userName.includes(searchText) ||
+      userSurname.includes(searchText)
+    );
+  });
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -90,37 +130,7 @@ const App = ({ navigation }) => {
       </View>
 
       <Text style={styles.subHeaderText}>KAYITLI {users.length} KULLANICI VAR</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="KULLANICI ADI-SOYADI"
-        placeholderTextColor={'#686D76'}
-        value={name}
-        onChangeText={setName}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="KULLANICI TELEFON NUMARASI"
-        placeholderTextColor={'#686D76'}
-        value={surname}
-        onChangeText={setSurname}
-        keyboardType='phone-pad'
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="KULLANICI KARTNO"
-        placeholderTextColor={'#686D76'}
-        value={cardNumber}
-        onChangeText={setCardNumber}
-        keyboardType='numeric'
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="DAİRE NOSU"
-        placeholderTextColor={'#686D76'}
-        value={apartmentNumber}
-        onChangeText={(text) => setApartmentNumber(text.toLowerCase())}
-        keyboardType='numeric'
-      />
+      
       <TouchableOpacity style={styles.button} onPress={handleAddUser}>
         <Text style={styles.buttonText}>EKLE</Text>
       </TouchableOpacity>
@@ -128,7 +138,7 @@ const App = ({ navigation }) => {
       <TouchableOpacity style={styles.searchButton} onPress={() => setSearchModalVisible(true)}>
         <Text style={styles.buttonText}>ARA</Text>
       </TouchableOpacity>
-      
+
       <View style={styles.resultsHeader}>
         <Text style={[styles.header, { color: 'black' }]}>SONUÇLAR</Text>
         {searchText ? (
@@ -138,13 +148,24 @@ const App = ({ navigation }) => {
         ) : null}
       </View>
 
-      {filteredUsers.map((user, index) => (
-        <View key={index} style={styles.resultItem}>
-          <Text style={styles.resultText}>{`${user.name}, ${user.surname}, ${user.cardNumber}, ${user.apartmentNumber}`}</Text>
-          <TouchableOpacity style={styles.editButton} onPress={() => handleEditUser(index)}>
-            <Text style={styles.editButtonText}>Düzenle</Text>
-          </TouchableOpacity>
-        </View>
+      {users.map((user) => (
+        <TouchableOpacity
+          key={user.İD}
+          style={[styles.user, user.selected && styles.selectedUser]}
+          onPress={() => {console.log("tıklandı==>>",user.Yetki)}}
+        >
+          <View style={{flexDirection:"row"}}>
+
+          <Text style={styles.userNumber}>{user["Ad Soyad"]}</Text>
+          <Text style={styles.userNumber}>/</Text>
+          <Text style={styles.userNumber}>{user["Daire No"]}</Text>
+          <Text style={styles.userNumber}>/</Text>
+          <Text style={styles.userNumber}>{user["Kart No"]}</Text>
+
+
+          </View>
+          
+        </TouchableOpacity>
       ))}
 
       <Modal
@@ -189,7 +210,7 @@ const App = ({ navigation }) => {
           <TouchableOpacity style={[styles.saveButton, { marginBottom: 20 }]} onPress={handleSaveEdit}>
             <Text style={[styles.saveButtonText]}>Kaydet</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.saveButton, { marginBottom: 20 },]} onPress={handleDeleteUser}>
+          <TouchableOpacity style={[styles.saveButton, { marginBottom: 20 }]} onPress={handleDeleteUser}>
             <Text style={[styles.saveButtonText]}>Sil</Text>
           </TouchableOpacity>
           <TouchableOpacity style={[styles.saveButton, { marginBottom: 20 }]} onPress={() => setModalVisible(false)}>
@@ -213,11 +234,11 @@ const App = ({ navigation }) => {
               onChangeText={setSearchText}
             />
           </View>
-          <TouchableOpacity style={[styles.saveButton, { marginBottom: 20 }]} onPress={handleSearch}>
+          <TouchableOpacity style={[styles.saveButton, { marginBottom: 20 }]} onPress={()=> {console.log("users ==>>",users)}}>
             <Text style={[styles.saveButtonText]}>ARA</Text>
           </TouchableOpacity>
           <TouchableOpacity style={[styles.saveButton, { marginBottom: 20 }]} onPress={() => setSearchModalVisible(false)}>
-            <Text style={styles.cancelButtonText}>İptal</Text>
+            <Text style={[styles.cancelButtonText]}>İptal</Text>
           </TouchableOpacity>
         </View>
       </Modal>
@@ -246,7 +267,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
-  },cancelButtonText: {
+  },
+  cancelButtonText: {
     color: 'white',
     fontSize: 16,
     fontWeight: 'bold',
@@ -265,7 +287,7 @@ const styles = StyleSheet.create({
   headerText: {
     fontSize: 24,
     fontWeight: 'bold',
-    color:'black',
+    color: 'black',
   },
   iconButton: {
     padding: 10,
@@ -289,7 +311,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 10,
     fontSize: 16,
-    color:'black',
+    color: 'black',
   },
   input: {
     backgroundColor: '#DFD3C3',
@@ -319,7 +341,7 @@ const styles = StyleSheet.create({
   },
   resultText: {
     fontSize: 16,
-    color:'black',
+    color: 'black',
   },
   editButton: {
     backgroundColor: '#2E236C',
@@ -342,7 +364,6 @@ const styles = StyleSheet.create({
     shadowOffset: {
       width: 0,
       height: 2,
-      
     },
     shadowOpacity: 0.25,
     shadowRadius: 4,
@@ -352,27 +373,40 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 10,
-
   },
   modalLabel: {
     width: 100,
     fontSize: 16,
-    color:'black',
+    color: 'black',
   },
   modalInput: {
     flex: 1,
     backgroundColor: '#e0e0e0',
     padding: 10,
     borderRadius: 5,
-    color:'black',
+    color: 'black',
   },
   clearButtonText: {
     color: 'black',
     fontWeight: 'bold',
   },
-
+  user: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 8,
+    padding: 10,
+    marginBottom: 10,
+  },
+  selectedUser: {
+    borderColor: 'blue', // Seçili kartın çerçeve rengi
+  },
+  userNumber: {
+    fontSize: 18,
+    marginRight: 10,
+    color:"black"
+  },
 });
-
-
 
 export default App;
