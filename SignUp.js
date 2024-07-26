@@ -27,6 +27,7 @@ const RegisterScreen = () => {
         'Telefon No': TelefonNo,
         'Yetki': false,
         'Şifre': Şifre,
+        'Onay':false,
         
       });
       setError('Kayıt başarıyla tamamlandı!');

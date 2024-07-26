@@ -3,7 +3,6 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-nativ
 import Icon from 'react-native-vector-icons/Ionicons';
 import firestore from '@react-native-firebase/firestore';
 
-
 const LoginScreen = ({ navigation }) => {
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
@@ -28,7 +27,9 @@ const LoginScreen = ({ navigation }) => {
         const userData = userDoc.data();
 
         if (userData['Şifre'] === password) {
-          if (userData['Yetki']) {
+          if (!userData['Onay']) {
+            setError('Kullanıcı onaylı değil');
+          } else if (userData['Yetki']) {
             navigation.navigate('adminf');
           } else {
             navigation.navigate('User');
