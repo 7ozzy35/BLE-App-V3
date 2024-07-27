@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Alert, ScrollView, StyleSheet, Image, Modal } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet, Image, Modal, FlatList } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 
 const App = ({ navigation }) => {
@@ -17,8 +17,6 @@ const App = ({ navigation }) => {
     const fetchUsers = async () => {
       const usersSnapshot = await firestore().collection('Users').get();
       const usersList = usersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      console.log("usersSnapshot",usersSnapshot)
-      console.log("usersList",usersList)
       setUsers(usersList);
     };
 
@@ -121,7 +119,7 @@ const App = ({ navigation }) => {
   });
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <View style={styles.container}>
       <View style={styles.headerContainer}>
         <Text style={styles.headerText}>Kullanıcı Yönetim Ekranı</Text>
         <TouchableOpacity style={styles.iconButton} onPress={() => navigation.goBack()}>
@@ -130,9 +128,9 @@ const App = ({ navigation }) => {
       </View>
 
       <Text style={styles.subHeaderText}>KAYITLI {users.length} KULLANICI VAR</Text>
-      
-      <TouchableOpacity style={styles.button} onPress={handleAddUser}>
-        <Text style={styles.buttonText}>EKLE</Text>
+
+      <TouchableOpacity style={styles.button} onPress={() => { navigation.navigate("Onay") }}>
+        <Text style={styles.buttonText}>Onay Bekleyenler</Text>
       </TouchableOpacity>
 
       <TouchableOpacity style={styles.searchButton} onPress={() => setSearchModalVisible(true)}>
@@ -141,6 +139,7 @@ const App = ({ navigation }) => {
 
       <View style={styles.resultsHeader}>
         <Text style={[styles.header, { color: 'black' }]}>SONUÇLAR</Text>
+        <Text style={[styles.headerDown, { color: '#2E236C' }]}>Ad-Soyad   / Daire No   / Kart No   / Tel No</Text>
         {searchText ? (
           <TouchableOpacity style={styles.button} onPress={handleClearSearch}>
             <Text style={styles.buttonText}>Arama Sonucunu Sil</Text>
@@ -148,25 +147,26 @@ const App = ({ navigation }) => {
         ) : null}
       </View>
 
-      {users.map((user) => (
-        <TouchableOpacity
-          key={user.İD}
-          style={[styles.user, user.selected && styles.selectedUser]}
-          onPress={() => {console.log("tıklandı==>>",user.Yetki)}}
-        >
-          <View style={{flexDirection:"row"}}>
-
-          <Text style={styles.userNumber}>{user["Ad Soyad"]}</Text>
-          <Text style={styles.userNumber}>/</Text>
-          <Text style={styles.userNumber}>{user["Daire No"]}</Text>
-          <Text style={styles.userNumber}>/</Text>
-          <Text style={styles.userNumber}>{user["Kart No"]}</Text>
-
-
-          </View>
-          
-        </TouchableOpacity>
-      ))}
+      <FlatList
+        data={filteredUsers}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item, index }) => (
+          item.Onay && (
+            <TouchableOpacity
+              key={item.id} // Benzersiz bir "key" prop'u ekliyoruz
+              style={[styles.user, item.selected && styles.selectedUser]}
+              onPress={() => { console.log("tıklandı==>>", item["Ad Soyad"]) }}
+            >
+              <View style={{ flexDirection: "row" }}>
+                <Text style={styles.userNumber}>{item["Ad Soyad"]}</Text>
+                <Text style={styles.userNumber}>/ {item["Daire No"]}</Text>
+                <Text style={styles.userNumber}>/ {item["Kart No"]}</Text>
+                <Text style={styles.userNumber}>/ {String(item["Telefon No"])}</Text>
+              </View>
+            </TouchableOpacity>
+          )
+        )}
+      />
 
       <Modal
         animationType="slide"
@@ -234,7 +234,7 @@ const App = ({ navigation }) => {
               onChangeText={setSearchText}
             />
           </View>
-          <TouchableOpacity style={[styles.saveButton, { marginBottom: 20 }]} onPress={()=> {console.log("users ==>>",users)}}>
+          <TouchableOpacity style={[styles.saveButton, { marginBottom: 20 }]} onPress={handleSearch}>
             <Text style={[styles.saveButtonText]}>ARA</Text>
           </TouchableOpacity>
           <TouchableOpacity style={[styles.saveButton, { marginBottom: 20 }]} onPress={() => setSearchModalVisible(false)}>
@@ -242,13 +242,13 @@ const App = ({ navigation }) => {
           </TouchableOpacity>
         </View>
       </Modal>
-    </ScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flexGrow: 1,
+    flex: 1,
     padding: 20,
     backgroundColor: '#F8F4E1',
   },
@@ -329,6 +329,16 @@ const styles = StyleSheet.create({
   header: {
     fontSize: 20,
     marginVertical: 10,
+    borderWidth:2,
+    borderBottomColor:"#f0a2f8",
+    borderRightColor:"#F8F4E1",
+    borderLeftColor:"#F8F4E1",
+    borderTopColor:"#F8F4E1"
+  },
+  headerDown:{
+    fontSize: 16,
+    marginHorizontal: 15,
+    marginVertical:8
   },
   resultItem: {
     flexDirection: 'row',
@@ -403,9 +413,9 @@ const styles = StyleSheet.create({
     borderColor: 'blue', // Seçili kartın çerçeve rengi
   },
   userNumber: {
-    fontSize: 18,
+    fontSize: 14,
     marginRight: 10,
-    color:"black"
+    color: "black"
   },
 });
 
