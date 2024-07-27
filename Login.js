@@ -69,7 +69,7 @@ const LoginScreen = ({ navigation }) => {
             keyboardType="numeric"
           />
           <TouchableOpacity onPress={togglePasswordVisibility} style={styles.icon}>
-            <Icon name={isPasswordVisible ? 'eye-off' : 'eye'} size={24} color="gray" />
+            <Icon name={!isPasswordVisible ? 'eye-off' : 'eye'} size={24} color="gray" />
           </TouchableOpacity>
         </View>
         <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
