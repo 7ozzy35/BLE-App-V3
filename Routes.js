@@ -10,6 +10,7 @@ import Adminf from './Adminf'
 import Admina from './Admina'
 import Home from './Home'
 import SignUp from './SignUp'
+import Onay from './Onay'
 
 
 
@@ -28,6 +29,7 @@ const routes = () => {
         <Stack.Screen name='adminf' component={Adminf} options={{ headerShown: false }} />
         <Stack.Screen name='Admina' component={Admina} options={{ headerShown: false }} />
         <Stack.Screen name='Home' component={Home} options={{ headerShown: false }} />
+        <Stack.Screen name='Onay' component={Onay} options={{ headerShown: false }} />
 
 
         
