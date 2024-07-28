@@ -1,132 +1,39 @@
-//User.js
-import React, { useState, useEffect, useContext, createContext } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, PermissionsAndroid, Platform, Image } from 'react-native';
-import { BleManager } from 'react-native-ble-plx';
-import { Buffer } from 'buffer';
-import { DeviceContext } from './Context/DevicesContext'
-
-
-const bleManager = new BleManager();
+import React, { useContext } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, Image, TouchableNativeFeedback } from 'react-native';
+import { DeviceContext } from './Context/DevicesContext';
 
 const App = () => {
-  const {connectedDevice,setConnectedDevice, handleDoorOpen, disconnectDevice, disconnectMessage, disconnectButtonVisible, setDisconnectButtonVisible} = useContext(DeviceContext)
-  const myId = "12:6C:14:38:F5:40"; // Replace with your device ID
-
-  useEffect(() => {
-    const requestPermissions = async () => {
-      if (Platform.OS === 'android' && Platform.Version >= 23) {
-        try {
-          const granted = await PermissionsAndroid.requestMultiple([
-            PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-            PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
-            PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
-          ]);
-
-          if (
-            granted['android.permission.ACCESS_FINE_LOCATION'] === PermissionsAndroid.RESULTS.GRANTED &&
-            granted['android.permission.BLUETOOTH_SCAN'] === PermissionsAndroid.RESULTS.GRANTED &&
-            granted['android.permission.BLUETOOTH_CONNECT'] === PermissionsAndroid.RESULTS.GRANTED
-          ) {
-            console.log('Location and Bluetooth permissions granted');
-          } else {
-            console.log('Location and/or Bluetooth permissions denied');
-          }
-        } catch (err) {
-          console.warn(err);
-        }
-      }
-    };
-
-    requestPermissions();
-
-    return () => {
-      bleManager.destroy();
-    };
-  }, []);
-
-//   const handleDoorOpen = async () => {
-//     try {
-//       const device = await bleManager.connectToDevice(myId);
-//       await device.discoverAllServicesAndCharacteristics();
-//       setConnectedDevice(device);
-//       setDisconnectMessage('');
-//       setDisconnectButtonVisible(true);
-//       const data = '<1:4:1>';
-//       await sendDataToDevice(device, '0000ffe0-0000-1000-8000-00805f9b34fb', '0000ffe1-0000-1000-8000-00805f9b34fb', data);
-//       console.log('Door open command sent');
-
-//       // Automatically disconnect after 8 seconds
-//       setTimeout(async () => {
-//         await disconnectDevice(false);
-//         setDisconnectMessage('Kapı bağlantısı kesildi');
-//         setConnectedDevice(null);
-//       }, 8000);
-//     } catch (error) {
-//       console.error('Failed to open door:', error);
-//     }
-//   };
-
-//   const sendDataToDevice = async (device, serviceUUID, characteristicUUID, data) => {
-//     try {
-//       const characteristic = await device.writeCharacteristicWithResponseForService(
-//         serviceUUID,
-//         characteristicUUID,
-//         Buffer.from(data).toString('base64')
-//       );
-//       console.log('Data sent:', characteristic);
-//     } catch (error) {
-//       console.error('Failed to send data:', error);
-//     }
-//   };
-
-//   const disconnectDevice = async (manual = true) => {
-//     if (connectedDevice) {
-//       try {
-//         if (bleManager.state !== 'destroyed') {
-//           await bleManager.cancelDeviceConnection(connectedDevice.id);
-//           console.log('Disconnected from device');
-//           setConnectedDevice(null);
-//           if (manual) {
-//             setDisconnectMessage('Kapı bağlantısı manuel olarak kesildi');
-            
-//           }
-//           setDisconnectButtonVisible(false);
-//         } else {
-//           console.error('BleManager is destroyed and cannot disconnect');
-//         }
-//       } catch (error) {
-//         console.error('Failed to disconnect:', error);
-//       }
-//     }
-//   };
-
+  const { connectedDevice, handleDoorOpen, disconnectDevice, disconnectMessage, disconnectButtonVisible, isButtonDisabled } = useContext(DeviceContext);
 
   return (
-    <DeviceContext.Provider value={{ connectedDevice, setConnectedDevice }}>
-      <View style={styles.container}>
-        <View style={styles.headerContainer}t>
-          <Text style={styles.headerText}>Kullanıcı Ekranı</Text>
-          
-          <TouchableOpacity style={styles.iconButton} onPress={() => { }}>
-            <Image source={require('./assets/gear_icon.png')} style={styles.icon} />
-             </TouchableOpacity>      
-        </View>
-        <View>
-        {disconnectMessage ? <Text style={styles.disconnectMessage}>{disconnectMessage}</Text> : null} 
-        </View>
-        <TouchableOpacity style={styles.button} onPress={handleDoorOpen }>
-          <Text style={styles.buttonText}>KAPI AÇ</Text>
+    <View style={styles.container}>
+      <View style={styles.headerContainer}>
+        <Text style={styles.headerText}>Kullanıcı Ekranı</Text>
+        <TouchableOpacity style={styles.iconButton} onPress={() => { }}>
+          <Image source={require('./assets/gear_icon.png')} style={styles.icon} />
         </TouchableOpacity>
-        {connectedDevice && disconnectButtonVisible && (
-          <View style={styles.connectedDevice}>
-            <Text style={styles.connectedDeviceText}>Connected to: {connectedDevice.name || 'Unnamed device'}</Text>
-            <TouchableOpacity style={styles.button} onPress={() => disconnectDevice(true)}>
-              <Text style={styles.text}>Kapı Bağlantısını kes</Text>
-            </TouchableOpacity>
-          </View>
-        )}
       </View>
-    </DeviceContext.Provider>
+      {/* <View>
+        {disconnectMessage ? <Text style={styles.disconnectMessage}>{disconnectMessage}</Text> : null}
+      </View>
+      {connectedDevice && disconnectButtonVisible && (
+        <View style={styles.connectedDevice}>
+          <Text style={styles.connectedDeviceText}>Connected to: {connectedDevice.name || 'Unnamed device'}</Text>
+          <TouchableOpacity style={styles.button} onPress={() => disconnectDevice(true)}>
+            <Text style={styles.text}>Kapı Bağlantısını kes</Text>
+          </TouchableOpacity>
+        </View>
+      )} */}
+      <TouchableNativeFeedback
+        onPress={handleDoorOpen}
+        background={TouchableNativeFeedback.Ripple('blue', true,-20)}
+        disabled={isButtonDisabled}
+      >
+        <View style={[styles.button, isButtonDisabled && styles.disabledButton]}>
+          <Text style={styles.buttonText}>KAPI AÇ</Text>
+        </View>
+      </TouchableNativeFeedback>
+    </View>
   );
 };
 
@@ -160,9 +67,11 @@ const styles = StyleSheet.create({
     margin: 50,
   },
   button: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
+    position: "absolute",
+    bottom: 150,
+    width: 150,
+    height: 150,
+    borderRadius: 80,
     backgroundColor: '#2E236C',
     justifyContent: 'center',
     alignItems: 'center',
@@ -172,6 +81,9 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     elevation: 5,
     margin: 10,
+  },
+  disabledButton: {
+    backgroundColor: '#999999',
   },
   buttonContent: {
     justifyContent: 'center',
@@ -207,7 +119,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'cloudy',
     padding: 20,
     borderRadius: 8,
-    marginTop: 20,
+    marginTop: 200,
     alignItems: 'center',
   },
   connectedDeviceText: {

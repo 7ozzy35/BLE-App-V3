@@ -1,11 +1,11 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, Alert, Image, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, Alert, Image, StyleSheet,TouchableNativeFeedback } from 'react-native';
 import { DeviceContext } from './Context/DevicesContext'
 import { useContext } from 'react';
 
 const AdminScreen = ({ navigation }) => {
  
-  const {connectedDevice,setConnectedDevice, handleDoorOpen, disconnectDevice, disconnectMessage, disconnectButtonVisible, setDisconnectButtonVisible} = useContext(DeviceContext)
+  const {connectedDevice,setConnectedDevice, handleDoorOpen, disconnectDevice, disconnectMessage, disconnectButtonVisible, setDisconnectButtonVisible,isButtonDisabled} = useContext(DeviceContext)
   const myId = "12:6C:14:38:F5:40"; // Replace with your device ID
 
   const handlePress = (buttonName) => {
@@ -21,25 +21,31 @@ const AdminScreen = ({ navigation }) => {
         </TouchableOpacity>
       </View>
       <View style={styles.buttonContainer}>
-        <View>
+        {/* <View>
         {disconnectMessage ? <Text style={styles.disconnectMessage}>{disconnectMessage}</Text> : null} 
-        </View>
-        <TouchableOpacity style={styles.button} onPress={handleDoorOpen}>
+        </View> */}
+        <TouchableNativeFeedback
+        onPress={handleDoorOpen}
+        background={TouchableNativeFeedback.Ripple('blue', true,-20)}
+        disabled={isButtonDisabled}
+      >
+        <View style={[styles.button, isButtonDisabled && styles.disabledButton]}>
           <Text style={styles.buttonText}>KAPI AÇ</Text>
-        </TouchableOpacity>
+        </View>
+      </TouchableNativeFeedback>
         <TouchableOpacity style={styles.button} onPress={() => { navigation.navigate('Admina') }}>
           <Text style={styles.buttonText}>KULLANICI İŞLEMLERİ</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.button} onPress={() => handlePress('Aktarım')}>
           <Text style={styles.buttonText}>AKTARIM</Text>
         </TouchableOpacity>
-        {connectedDevice && disconnectButtonVisible && (
+        {/* {connectedDevice && disconnectButtonVisible && (
           <View style={styles.connectedDevice}>
             <Text style={styles.connectedDeviceText}>Connected to: {connectedDevice.name || 'Unnamed device'}</Text>
             <TouchableOpacity style={styles.button} onPress={() => disconnectDevice(true)}>
               <Text style={styles.text}>Kapı Bağlantısını kes</Text>
             </TouchableOpacity>
-          </View>)}
+          </View>)} */}
       </View>
 
       {/*  Home sayfası yönlendirme butonu  */}
@@ -113,6 +119,9 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     elevation: 5,
     margin: 10,
+  },
+  disabledButton: {
+    backgroundColor: '#999999',
   },
   buttonText: {
     color: '#ffffff',
