@@ -9,6 +9,7 @@ const App = ({ navigation }) => {
   const [apartmentNumber, setApartmentNumber] = useState('');
   const [users, setUsers] = useState([]);
   const [searchText, setSearchText] = useState('');
+  const [filteredUsers, setFilteredUsers] = useState([]);
   const [editIndex, setEditIndex] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [searchModalVisible, setSearchModalVisible] = useState(false);
@@ -18,6 +19,7 @@ const App = ({ navigation }) => {
       const usersSnapshot = await firestore().collection('Users').get();
       const usersList = usersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setUsers(usersList);
+      setFilteredUsers(usersList);
     };
 
     fetchUsers();
@@ -34,6 +36,7 @@ const App = ({ navigation }) => {
     try {
       const userDoc = await firestore().collection('Users').add(newUser);
       setUsers([...users, { id: userDoc.id, ...newUser }]);
+      setFilteredUsers([...users, { id: userDoc.id, ...newUser }]);
       setName('');
       setSurname('');
       setCardNumber('');
@@ -63,6 +66,7 @@ const App = ({ navigation }) => {
         const updatedUsers = [...users];
         updatedUsers[editIndex] = { id: user.id, ...updatedUser };
         setUsers(updatedUsers);
+        setFilteredUsers(updatedUsers);
         setName('');
         setSurname('');
         setCardNumber('');
@@ -84,6 +88,7 @@ const App = ({ navigation }) => {
         const updatedUsers = [...users];
         updatedUsers.splice(editIndex, 1);
         setUsers(updatedUsers);
+        setFilteredUsers(updatedUsers);
         setName('');
         setSurname('');
         setCardNumber('');
@@ -96,27 +101,36 @@ const App = ({ navigation }) => {
     }
   };
 
-  const handleSearch = () => {
-    setSearchModalVisible(false);
-    setSearchText(searchText.toLowerCase());
+  const handleSearch = async () => {
+    if (searchText.trim() === '') {
+      setFilteredUsers(users);
+      
+      return;
+    }
+
+    try {
+      const usersSnapshot = await firestore()
+        .collection('Users')
+        .where('apartmentNumber', '==', searchText)
+        .get();
+        console.log("dene1");
+
+      const filtered = usersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      
+      setFilteredUsers(filtered);
+      setSearchModalVisible(false);
+      console.log("dene2");
+    } catch (error) {
+      console.error('Error searching users: ', error);
+    }
   };
 
   const handleClearSearch = () => {
     setSearchText('');
+    setFilteredUsers(users);
+    
   };
 
-  const filteredUsers = users.filter((user) => {
-    const apartmentNum = user.apartmentNumber ? user.apartmentNumber.toLowerCase() : '';
-    const cardNum = user.cardNumber ? user.cardNumber.toLowerCase() : '';
-    const userName = user.name ? user.name.toLowerCase() : '';
-    const userSurname = user.surname ? user.surname.toLowerCase() : '';
-    return (
-      apartmentNum.includes(searchText) ||
-      cardNum.includes(searchText) ||
-      userName.includes(searchText) ||
-      userSurname.includes(searchText)
-    );
-  });
 
   return (
     <View style={styles.container}>
@@ -153,7 +167,7 @@ const App = ({ navigation }) => {
         renderItem={({ item, index }) => (
           item.Onay && (
             <TouchableOpacity
-              key={item.id} // Benzersiz bir "key" prop'u ekliyoruz
+              key={item.id}
               style={[styles.user, item.selected && styles.selectedUser]}
               onPress={() => { console.log("tıklandı==>>", item["Ad Soyad"]) }}
             >
@@ -232,13 +246,15 @@ const App = ({ navigation }) => {
               style={styles.modalInput}
               value={searchText}
               onChangeText={setSearchText}
+              placeholder="Ara..."
+              placeholderTextColor={"black"}
             />
           </View>
           <TouchableOpacity style={[styles.saveButton, { marginBottom: 20 }]} onPress={handleSearch}>
-            <Text style={[styles.saveButtonText]}>ARA</Text>
+            <Text style={[styles.saveButtonText]}>Ara</Text>
           </TouchableOpacity>
           <TouchableOpacity style={[styles.saveButton, { marginBottom: 20 }]} onPress={() => setSearchModalVisible(false)}>
-            <Text style={[styles.cancelButtonText]}>İptal</Text>
+            <Text style={[styles.saveButtonText]}>İptal</Text>
           </TouchableOpacity>
         </View>
       </Modal>
