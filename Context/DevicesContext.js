@@ -6,6 +6,10 @@ export const DeviceContext = createContext();
 let bleManager = new BleManager();
 
 export const DeviceProvider = ({ children }) => {
+
+  const [userToken, setUserToken] = useState(false);
+  const [userİnfo, setUserİnfo] = useState(null);
+  
   const [connectedDevice, setConnectedDevice] = useState(null);
   const [disconnectMessage, setDisconnectMessage] = useState('');
   const [disconnectButtonVisible, setDisconnectButtonVisible] = useState(false);
@@ -102,7 +106,7 @@ export const DeviceProvider = ({ children }) => {
       console.log('Command sent');
   
       // Veriyi okuyacağımız karakteristik UUID'yi belirleyin
-      const serviceUUID = '0000fee7-0000-1000-8000-00805f9b34fb';
+      const serviceUUID = '0000ffe0-0000-1000-8000-00805f9b34fb';
       const characteristicUUID = '0000ffe1-0000-1000-8000-00805f9b34fb';
   
       // Cihazdan veri okuma
@@ -145,12 +149,12 @@ export const DeviceProvider = ({ children }) => {
   
   const sendDataToDevice = async (device, serviceUUID, characteristicUUID, data) => {
     try {
-      await device.writeCharacteristicWithResponseForService(
+      const characteristic = await device.writeCharacteristicWithResponseForService(
         serviceUUID,
         characteristicUUID,
         Buffer.from(data).toString('base64')
       );
-      console.log('Data sent');
+      console.log('Data sent:', characteristic);
     } catch (error) {
       console.error('Failed to send data:', error);
     }
@@ -158,7 +162,7 @@ export const DeviceProvider = ({ children }) => {
   
 
   return (
-    <DeviceContext.Provider value={{ connectedDevice, setConnectedDevice, handleDoorOpen, sendDataToDevice, disconnectDevice, disconnectMessage, disconnectButtonVisible, setDisconnectButtonVisible, setDisconnectMessage, isButtonDisabled,CardControl }}>
+    <DeviceContext.Provider value={{ userİnfo, setUserİnfo,userToken, setUserToken,connectedDevice, setConnectedDevice, handleDoorOpen, sendDataToDevice, disconnectDevice, disconnectMessage, disconnectButtonVisible, setDisconnectButtonVisible, setDisconnectMessage, isButtonDisabled,CardControl }}>
       {children}
     </DeviceContext.Provider>
   );

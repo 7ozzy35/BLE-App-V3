@@ -1,42 +1,57 @@
 import { View, Text } from 'react-native'
-import React from 'react'
+import React,{useContext} from 'react'
 import { NavigationContainer } from '@react-navigation/native'
 import { createStackNavigator } from '@react-navigation/stack'
-import Login from './Login'
-import User from './User'
+
 import { Device } from 'react-native-ble-plx'
-import { DeviceProvider } from './Context/DevicesContext'
-import Adminf from './Adminf'
-import Admina from './Admina'
-import Home from './Home'
-import SignUp from './SignUp'
-import Onay from './Onay'
+import { DeviceContext, DeviceProvider } from './Context/DevicesContext'
+
+import AppStack from './Stack/AppStack'
+import AuthStack from './Stack/AuthStack'
 
 
 
 const Stack = createStackNavigator();
+const Routes = () => {
+
+    const { userToken } = useContext(DeviceContext);
 
 
-const routes = () => {
-  return (
-    <NavigationContainer> 
-        <DeviceProvider>
-        <Stack.Navigator initialRouteName='LoginTab'>
-        
-        <Stack.Screen name='Login' component={Login} options={{ headerShown: false }} />
-        <Stack.Screen name='User' component={User} options={{ headerShown: false }} />
-        <Stack.Screen name='SignUp' component={SignUp} options={{ headerShown: false }} />
-        <Stack.Screen name='adminf' component={Adminf} options={{ headerShown: false }} />
-        <Stack.Screen name='Admina' component={Admina} options={{ headerShown: false }} />
-        <Stack.Screen name='Home' component={Home} options={{ headerShown: false }} />
-        <Stack.Screen name='Onay' component={Onay} options={{ headerShown: false }} />
 
 
-        
-      </Stack.Navigator>
-      </DeviceProvider>
-    </NavigationContainer>
-  )
+    
+
+
+
+
+
+    return (
+        <NavigationContainer>
+          
+            <Stack.Navigator screenOptions={{ headerShown: false }}>
+                {userToken ? (
+                    console.log("evet userToken var")
+                ) : (
+                    console.log("hayır bişiyok ")
+                )}
+
+                {userToken ? (
+
+                    <Stack.Screen name="App" component={AppStack} />
+
+                ) : (
+
+                    <Stack.Screen name="Auth" component={AuthStack} />
+
+
+                )}
+
+
+                {/* DrawerPages */}
+
+            </Stack.Navigator>
+        </NavigationContainer>
+    )
 }
 
-export default routes
+export default Routes
