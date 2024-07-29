@@ -2,10 +2,11 @@ import React from 'react';
 import { View, Text, TouchableOpacity, Alert, Image, StyleSheet,TouchableNativeFeedback } from 'react-native';
 import { DeviceContext } from './Context/DevicesContext'
 import { useContext } from 'react';
+import Icon from 'react-native-vector-icons/Octicons';
 
 const AdminScreen = ({ navigation }) => {
  
-  const {connectedDevice,setConnectedDevice, handleDoorOpen, disconnectDevice, disconnectMessage, disconnectButtonVisible, setDisconnectButtonVisible,isButtonDisabled} = useContext(DeviceContext)
+  const {setUserToken,connectedDevice,setConnectedDevice, handleDoorOpen, disconnectDevice, disconnectMessage, disconnectButtonVisible, setDisconnectButtonVisible,isButtonDisabled} = useContext(DeviceContext)
   const myId = "12:6C:14:38:F5:40"; // Replace with your device ID
 
   const handlePress = (buttonName) => {
@@ -18,6 +19,9 @@ const AdminScreen = ({ navigation }) => {
         <Text style={styles.headerText}>Yönetici Ekranı</Text>
         <TouchableOpacity style={styles.iconButton} onPress={() => handlePress('Ayarlar')}>
           <Image source={require('./assets/gear_icon.png')} style={styles.icon} />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.iconButton} onPress={() => { navigation.replace("Login"),setUserToken(false) }}>
+        <Icon name={"sign-out"} size={24} color="gray" />
         </TouchableOpacity>
       </View>
       <View style={styles.buttonContainer}>

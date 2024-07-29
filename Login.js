@@ -2,8 +2,14 @@ import React, { useContext, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import firestore from '@react-native-firebase/firestore';
+import { DeviceContext } from './Context/DevicesContext';
 
 const LoginScreen = ({ navigation }) => {
+
+  const { userToken, setUserToken,userİnfo, setUserİnfo} = useContext(DeviceContext);
+
+
+
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -25,14 +31,17 @@ const LoginScreen = ({ navigation }) => {
       if (!userSnapshot.empty) {
         const userDoc = userSnapshot.docs[0];
         const userData = userDoc.data();
+        // setUserİnfo(userData)
 
         if (userData['Şifre'] === password) {
           if (!userData['Onay']) {
             setError('Kullanıcı onaylı değil');
           } else if (userData['Yetki']) {
-            navigation.navigate('adminf');
+            setUserToken(true)
+            navigation.replace('adminf');
           } else {
-            navigation.navigate('User');
+            setUserToken(true)
+            navigation.replace('User');
           }
         } else {
           setError('Şifre hatalı!');

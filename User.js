@@ -1,9 +1,10 @@
 import React, { useContext } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image, TouchableNativeFeedback } from 'react-native';
 import { DeviceContext } from './Context/DevicesContext';
+import Icon from 'react-native-vector-icons/Octicons';
 
-const App = () => {
-  const { connectedDevice, handleDoorOpen, disconnectDevice, disconnectMessage, disconnectButtonVisible, isButtonDisabled } = useContext(DeviceContext);
+const App = ({navigation}) => {
+  const { setUserToken,handleDoorOpen,isButtonDisabled } = useContext(DeviceContext);
 
   return (
     <View style={styles.container}>
@@ -11,6 +12,9 @@ const App = () => {
         <Text style={styles.headerText}>Kullanıcı Ekranı</Text>
         <TouchableOpacity style={styles.iconButton} onPress={() => { }}>
           <Image source={require('./assets/gear_icon.png')} style={styles.icon} />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.iconButton} onPress={() => { navigation.replace("Login"),setUserToken(false) }}>
+        <Icon name={"sign-out"} size={24} color="gray" />
         </TouchableOpacity>
       </View>
       {/* <View>
@@ -26,7 +30,7 @@ const App = () => {
       )} */}
       <TouchableNativeFeedback
         onPress={handleDoorOpen}
-        background={TouchableNativeFeedback.Ripple('blue', true,-20)}
+        background={TouchableNativeFeedback.Ripple('#FFBF78', true,-20)}
         disabled={isButtonDisabled}
       >
         <View style={[styles.button, isButtonDisabled && styles.disabledButton]}>
@@ -68,11 +72,11 @@ const styles = StyleSheet.create({
   },
   button: {
     position: "absolute",
-    bottom: 150,
+    bottom: 185,
     width: 150,
     height: 150,
     borderRadius: 80,
-    backgroundColor: '#2E236C',
+    backgroundColor: '#DC5F00',
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#000',
