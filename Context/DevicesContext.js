@@ -76,7 +76,7 @@ export const DeviceProvider = ({ children }) => {
 
       const autoDisconnectTimeout = setTimeout(async () => {
         await disconnectDevice2();
-      }, 2500);
+      }, 5000);
 
       device.autoDisconnectTimeout = autoDisconnectTimeout;
     } catch (error) {
