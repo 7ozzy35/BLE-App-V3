@@ -13,7 +13,8 @@ export const DeviceProvider = ({ children }) => {
   const [connectedDevice, setConnectedDevice] = useState(null);
   const [disconnectMessage, setDisconnectMessage] = useState('');
   const [disconnectButtonVisible, setDisconnectButtonVisible] = useState(false);
-  const myId = "12:6C:14:38:F5:40"; // Replace with your device ID
+  const myId = "12:6C:14:38:54:50"; // Replace with your device ID
+  const rfidName ='12345';
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
 
   const resetBleManager = () => {

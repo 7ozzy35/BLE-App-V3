@@ -49,14 +49,25 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     alignItems: 'center',
   },
+  iconButton: {
+    padding: 10,
+  },
+  icon: {
+    width: 35,
+    height: 35,
+  },
   headerContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 20,
-    marginBottom: 50,
-    margin: 20,
+    marginBottom: 20,
   },
+  headerText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: 'black',
+  },
+
   button: {
     position: "absolute",
     bottom: 185,

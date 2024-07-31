@@ -59,16 +59,21 @@ const App = ({ navigation }) => {
   const handleSaveEdit = async () => {
     if (editIndex !== null) {
       const user = users[editIndex];
-      const updatedUser = { name, surname, cardNumber, apartmentNumber };
+      const updatedUser = {
+        name: user.name,
+        surname: user.surname,
+        cardNumber: cardNumber || user.cardNumber,
+        apartmentNumber: apartmentNumber || user.apartmentNumber
+      };
 
       try {
         await firestore().collection('Users').doc(user.id).update(updatedUser);
+
         const updatedUsers = [...users];
         updatedUsers[editIndex] = { id: user.id, ...updatedUser };
         setUsers(updatedUsers);
         setFilteredUsers(updatedUsers);
-        setName('');
-        setSurname('');
+
         setCardNumber('');
         setApartmentNumber('');
         setEditIndex(null);
@@ -160,7 +165,7 @@ const App = ({ navigation }) => {
             <Text style={styles.clearButtonText}>Arama Sonucunu Sil</Text>
           </TouchableOpacity>
         ) : null}
-        <Text style={[styles.headerDown, { color: '#2E236C' }]}>Ad-Soyad / Daire No / Kart No / Tel No</Text>
+        <Text style={[styles.headerDown, { color: '#2E236C' }]}> Daire No / Kart No </Text>
       </View>
 
       <FlatList
@@ -170,13 +175,11 @@ const App = ({ navigation }) => {
           <TouchableOpacity
             key={item.id}
             style={[styles.user, item.selected && styles.selectedUser]}
-            onPress={() => { console.log("tıklandı==>>", item["Ad Soyad"]) }}
+            onPress={() => handleEditUser(index)}
           >
             <View style={{ flexDirection: "row" }}>
-              <Text style={styles.userNumber}>{item["Ad Soyad"]}</Text>
-              <Text style={styles.userNumber}>/ {item["Daire No"]}</Text>
+              <Text style={styles.userNumber}>{item["Daire No"]}</Text>
               <Text style={styles.userNumber}>/ {item["Kart No"]}</Text>
-              <Text style={styles.userNumber}>/ {String(item["Telefon No"])}</Text>
             </View>
           </TouchableOpacity>
         )}
@@ -189,22 +192,13 @@ const App = ({ navigation }) => {
         onRequestClose={() => setModalVisible(false)}
       >
         <View style={styles.modalView}>
-          <View style={styles.modalInputContainer}>
-            <Text style={styles.modalLabel}>KULLANICI ADI</Text>
-            <TextInput
-              style={styles.modalInput}
-              value={name}
-              onChangeText={setName}
-            />
-          </View>
-          <View style={styles.modalInputContainer}>
-            <Text style={styles.modalLabel}>KULLANICI SOYADI</Text>
-            <TextInput
-              style={styles.modalInput}
-              value={surname}
-              onChangeText={setSurname}
-            />
-          </View>
+          {editIndex !== null && (
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalHeaderText}>Mevcut Bilgiler</Text>
+              <Text style={styles.modalHeaderText}>Daire No: {users[editIndex]["Daire No"]}</Text>
+              <Text style={styles.modalHeaderText}>Kart No: {users[editIndex]["Kart No"]}</Text>
+            </View>
+          )}
           <View style={styles.modalInputContainer}>
             <Text style={styles.modalLabel}>KULLANICI KARTNO</Text>
             <TextInput
@@ -222,10 +216,10 @@ const App = ({ navigation }) => {
             />
           </View>
           <TouchableOpacity style={[styles.saveButton, { marginBottom: 20 }]} onPress={handleSaveEdit}>
-            <Text style={[styles.saveButtonText]}>Kaydet</Text>
+            <Text style={[styles.saveButtonText]}>Düzenle</Text>
           </TouchableOpacity>
           <TouchableOpacity style={[styles.saveButton, { marginBottom: 20 }]} onPress={handleDeleteUser}>
-            <Text style={[styles.saveButtonText]}>Sil</Text>
+            <Text style={[styles.saveButtonText]}>Kullanıcıyı Sil</Text>
           </TouchableOpacity>
           <TouchableOpacity style={[styles.saveButton, { marginBottom: 20 }]} onPress={() => setModalVisible(false)}>
             <Text style={[styles.saveButtonText]}>İptal</Text>
@@ -246,6 +240,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#134B70',
     padding: 10,
     borderRadius: 5,
+    width:200,
     alignItems: 'center',
     justifyContent: 'center',
     marginVertical: 10,
@@ -260,29 +255,41 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 16,
   },
+  modalHeader: {
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  modalHeaderText: {
+    fontSize: 20,
+    color: 'black',
+    marginBottom: 5,
+  },
   modalInput: {
-    borderWidth: 1,
+    borderWidth: 3,
     borderColor: '#ccc',
     padding: 10,
     marginBottom: 10,
     borderRadius: 5,
-    width: '80%',
+    width: 300,
+    color: 'black',
   },
   modalLabel: {
     fontWeight: 'bold',
     fontSize: 16,
     marginBottom: 5,
+    color:'black',
   },
   modalInputContainer: {
     marginBottom: 20,
     alignItems: 'center',
   },
   modalView: {
-    flex: 1,
+    flex: 5,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'white',
     margin: 20,
+    rowGap:15,
     borderRadius: 10,
     padding: 35,
     shadowColor: '#000',
