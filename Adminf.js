@@ -10,7 +10,8 @@ const AdminScreen = ({ navigation }) => {
   const myId = "12:6C:14:38:F5:40"; // Replace with your device ID
 
   const handlePress = (buttonName) => {
-    Alert.alert(`${buttonName} butonuna basıldı!`);
+    
+    
   };
 
   return (
@@ -40,7 +41,7 @@ const AdminScreen = ({ navigation }) => {
         <TouchableOpacity style={styles.button} onPress={() => { navigation.navigate('Admina') }}>
           <Text style={styles.buttonText}>KULLANICI İŞLEMLERİ</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={() => handlePress('Aktarım')}>
+        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate("Aktarim")}>
           <Text style={styles.buttonText}>AKTARIM</Text>
         </TouchableOpacity>
         {/* {connectedDevice && disconnectButtonVisible && (
