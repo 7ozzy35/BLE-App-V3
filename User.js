@@ -49,27 +49,25 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     alignItems: 'center',
   },
-  headerContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: 20,
-    marginBottom: 50,
-    margin: 20,
-  },
   iconButton: {
-    padding: 20,
+    padding: 10,
   },
   icon: {
     width: 35,
     height: 35,
   },
+  headerContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
   headerText: {
-    fontSize: 30,
+    fontSize: 24,
     fontWeight: 'bold',
     color: 'black',
-    margin: 50,
   },
+
   button: {
     position: "absolute",
     bottom: 185,
@@ -86,27 +84,13 @@ const styles = StyleSheet.create({
     elevation: 5,
     margin: 10,
   },
-  disabledButton: {
-    backgroundColor: '#999999',
-  },
-  buttonContent: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    flex: 1,
-  },
   text: {
     color: '#fff',
     fontSize: 18,
     fontWeight: 'bold',
     textAlign: 'center',
   },
-  disconnectButton: {
-    backgroundColor: '#dc3545',
-    padding: 16,
-    borderRadius: 8,
-    marginTop: 16,
-    alignItems: 'center',
-  },
+  
   doorOpenButton: {
     backgroundColor: '#ff9800',
     padding: 16,
@@ -119,24 +103,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
-  connectedDevice: {
-    backgroundColor: 'cloudy',
-    padding: 20,
-    borderRadius: 8,
-    marginTop: 200,
-    alignItems: 'center',
-  },
-  connectedDeviceText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#28a745',
-  },
-  disconnectMessage: {
-    fontSize: 18,
-    color: 'red',
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
+ 
 });
 
 export default App;

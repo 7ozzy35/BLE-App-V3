@@ -1,53 +1,40 @@
 import React, { useContext, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
 import firestore from '@react-native-firebase/firestore';
 import { DeviceContext } from './Context/DevicesContext';
 
 const LoginScreen = ({ navigation }) => {
-
-  const { userToken, setUserToken,userİnfo, setUserİnfo} = useContext(DeviceContext);
-
-
+  const { userToken, setUserToken } = useContext(DeviceContext);
 
   const [phone, setPhone] = useState('');
-  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const [kartNo, setKartNo] = useState('');
 
-  const togglePasswordVisibility = () => {
-    setIsPasswordVisible(!isPasswordVisible);
-  };
 
   const handleLogin = async () => {
     setError('');
     try {
       const userSnapshot = await firestore()
         .collection('Users')
-        .where('Telefon No', '==', phone)
+        .where('Kart No', '==', kartNo)
         .limit(1)
         .get();
 
       if (!userSnapshot.empty) {
         const userDoc = userSnapshot.docs[0];
         const userData = userDoc.data();
-        // setUserİnfo(userData)
 
-        if (userData['Şifre'] === password) {
-          if (!userData['Onay']) {
-            setError('Kullanıcı onaylı değil');
-          } else if (userData['Yetki']) {
-            setUserToken(true)
-            navigation.replace('adminf');
-          } else {
-            setUserToken(true)
-            navigation.replace('User');
-          }
+        if (!userData['Onay']) {
+          setError('Kullanıcı onaylı değil');
+        } else if (userData['Yetki']) {
+          setUserToken(true);
+          navigation.replace('adminf');
         } else {
-          setError('Şifre hatalı!');
+          setUserToken(true);
+          navigation.replace('User');
         }
       } else {
-        setError('Telefon numarası hatalı!');
+        setError('Kart Numarası Hatalı!');
       }
     } catch (error) {
       console.error('Error logging in: ', error);
@@ -62,31 +49,14 @@ const LoginScreen = ({ navigation }) => {
         {error ? <Text style={styles.errorText}>{error}</Text> : null}
         <TextInput
           style={styles.input}
-          placeholder="(05xx)-xxx-xxxx"
+          placeholder="Kart Numarası Giriniz"
           placeholderTextColor={'black'}
-          value={phone}
-          onChangeText={setPhone}
+          value={kartNo}
+          onChangeText={setKartNo}
           keyboardType="numeric"
         />
-        <View style={styles.passwordContainer}>
-          <TextInput
-            style={styles.passwordInput}
-            placeholder="Şifre"
-            placeholderTextColor={'black'}
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry={!isPasswordVisible}
-            keyboardType="numeric"
-          />
-          <TouchableOpacity onPress={togglePasswordVisibility} style={styles.icon}>
-            <Icon name={!isPasswordVisible ? 'eye-off' : 'eye'} size={24} color="gray" />
-          </TouchableOpacity>
-        </View>
         <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
           <Text style={styles.buttonText}>Giriş Yap</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.loginButton} onPress={() => { navigation.navigate('SignUp') }}>
-          <Text style={styles.buttonText}>Kayıt Ol</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -126,24 +96,6 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     borderRadius: 5,
     color: 'darkblue',
-  },
-  passwordContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderColor: '#ccc',
-    borderWidth: 1,
-    borderRadius: 5,
-    marginBottom: 10,
-    width: '100%',
-    paddingHorizontal: 10,
-  },
-  passwordInput: {
-    flex: 1,
-    height: 40,
-    color: 'darkblue',
-  },
-  icon: {
-    padding: 5,
   },
   loginButton: {
     backgroundColor: '#2E236C',
