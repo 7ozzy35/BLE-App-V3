@@ -48,10 +48,9 @@ const App = ({ navigation }) => {
 
   const handleEditUser = (index) => {
     const user = users[index];
-    setName(user.name);
-    setSurname(user.surname);
-    setCardNumber(user.cardNumber);
-    setApartmentNumber(user.apartmentNumber);
+    
+    setCardNumber(user["Kart No"]);
+    setApartmentNumber(user["Daire No"]);
     setEditIndex(index);
     setModalVisible(true);
   };
@@ -60,20 +59,18 @@ const App = ({ navigation }) => {
     if (editIndex !== null) {
       const user = users[editIndex];
       const updatedUser = {
-        name: user.name,
-        surname: user.surname,
-        cardNumber: cardNumber || user.cardNumber,
-        apartmentNumber: apartmentNumber || user.apartmentNumber
+        "Kart No": cardNumber,
+        "Daire No": apartmentNumber
       };
-
+  
       try {
         await firestore().collection('Users').doc(user.id).update(updatedUser);
-
+        
         const updatedUsers = [...users];
         updatedUsers[editIndex] = { id: user.id, ...updatedUser };
         setUsers(updatedUsers);
         setFilteredUsers(updatedUsers);
-
+  
         setCardNumber('');
         setApartmentNumber('');
         setEditIndex(null);
@@ -205,6 +202,7 @@ const App = ({ navigation }) => {
               style={styles.modalInput}
               value={cardNumber}
               onChangeText={setCardNumber}
+              keyboardType='numeric'
             />
           </View>
           <View style={styles.modalInputContainer}>
@@ -213,6 +211,7 @@ const App = ({ navigation }) => {
               style={styles.modalInput}
               value={apartmentNumber}
               onChangeText={setApartmentNumber}
+              keyboardType='numeric'
             />
           </View>
           <TouchableOpacity style={[styles.saveButton, { marginBottom: 20 }]} onPress={handleSaveEdit}>
