@@ -7,6 +7,7 @@ export const DeviceContext = createContext();
 let bleManager = new BleManager();
 
 export const DeviceProvider = ({ children }) => {
+  const [kartNo, setKartNo] = useState('');
 
   const [userToken, setUserToken] = useState(false);
   const [userİnfo, setUserİnfo] = useState(null);
@@ -172,7 +173,7 @@ export const DeviceProvider = ({ children }) => {
   
 
   return (
-    <DeviceContext.Provider value={{ userİnfo, setUserİnfo,userToken, setUserToken,connectedDevice, setConnectedDevice, handleDoorOpen, sendDataToDevice, disconnectDevice, disconnectMessage, disconnectButtonVisible, setDisconnectButtonVisible, setDisconnectMessage, isButtonDisabled,CardControl }}>
+    <DeviceContext.Provider value={{ kartNo, setKartNo,userİnfo, setUserİnfo,userToken, setUserToken,connectedDevice, setConnectedDevice, handleDoorOpen, sendDataToDevice, disconnectDevice, disconnectMessage, disconnectButtonVisible, setDisconnectButtonVisible, setDisconnectMessage, isButtonDisabled,CardControl }}>
       {children}
     </DeviceContext.Provider>
   );

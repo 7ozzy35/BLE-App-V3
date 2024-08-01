@@ -4,11 +4,11 @@ import firestore from '@react-native-firebase/firestore';
 import { DeviceContext } from './Context/DevicesContext';
 
 const LoginScreen = ({ navigation }) => {
-  const { userToken, setUserToken } = useContext(DeviceContext);
+  const { userToken, setUserToken, kartNo, setKartNo} = useContext(DeviceContext);
 
   const [phone, setPhone] = useState('');
   const [error, setError] = useState('');
-  const [kartNo, setKartNo] = useState('');
+  
 
 
   const handleLogin = async () => {
