@@ -12,6 +12,7 @@ const App = ({ navigation }) => {
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [editIndex, setEditIndex] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
+  const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -46,11 +47,11 @@ const App = ({ navigation }) => {
     }
   };
 
-  const handleEditUser = (index) => {
+  const handleEditUser = (index,userCard1,userDaire1) => {
     const user = users[index];
     
-    setCardNumber(user["Kart No"]);
-    setApartmentNumber(user["Daire No"]);
+    setCardNumber(userCard1);
+    setApartmentNumber(userDaire1);
     setEditIndex(index);
     setModalVisible(true);
   };
@@ -59,8 +60,8 @@ const App = ({ navigation }) => {
     if (editIndex !== null) {
       const user = users[editIndex];
       const updatedUser = {
-        "Kart No": cardNumber,
-        "Daire No": apartmentNumber
+       "Kart No": cardNumber,
+      "Daire No": apartmentNumber
       };
   
       try {
@@ -100,6 +101,14 @@ const App = ({ navigation }) => {
         console.error('Error deleting user: ', error);
       }
     }
+  };
+
+  const confirmDeleteUser = () => {
+    setIsDeleteModalVisible(true);
+  };
+
+  const handleCancelDelete = () => {
+    setIsDeleteModalVisible(false);
   };
 
   const handleSearch = async () => {
@@ -156,73 +165,88 @@ const App = ({ navigation }) => {
       </View>
 
       <View style={styles.resultsHeader}>
-        <Text style={[styles.header, { color: 'black' }]}>SONUÇLAR</Text>
-        {searchText ? (
-          <TouchableOpacity style={styles.clearSearchButton} onPress={handleClearSearch}>
-            <Text style={styles.clearButtonText}>Arama Sonucunu Sil</Text>
-          </TouchableOpacity>
-        ) : null}
-        <Text style={[styles.headerDown, { color: '#2E236C' }]}> Daire No / Kart No </Text>
+        <Text style={[styles.headerText, { fontSize: 15 }]}>Sonuçlar</Text>
+        <View style={styles.headerRow}>
+          <Text style={[styles.headerDown, { color: '#2E236C', marginRight: 100}]}>Daire No</Text>
+          <Text style={[styles.headerDown, { color: '#2E236C', marginRight: 150 }]}>Kart No</Text>
+        </View>
       </View>
 
       <FlatList
         data={filteredUsers}
-        keyExtractor={(item) => item.id}
         renderItem={({ item, index }) => (
-          <TouchableOpacity
-            key={item.id}
-            style={[styles.user, item.selected && styles.selectedUser]}
-            onPress={() => handleEditUser(index)}
-          >
-            <View style={{ flexDirection: "row" }}>
-              <Text style={styles.userNumber}>{item["Daire No"]}</Text>
-              <Text style={styles.userNumber}>/ {item["Kart No"]}</Text>
-            </View>
-          </TouchableOpacity>
+          <View style={styles.userContainer}>
+            <Text style={styles.userText}>{item["Kart No"]}</Text>
+            <Text style={styles.userText}>{item["Daire No"]}</Text>
+            <TouchableOpacity style={styles.editButton} onPress={() => handleEditUser(index,item["Kart No"],item["Daire No"])}>
+              <Text style={styles.buttonText}>Düzenle</Text>
+            </TouchableOpacity>
+          </View>
         )}
+        keyExtractor={(item, index) => index.toString()}
       />
 
       <Modal
-        animationType="slide"
-        transparent={true}
         visible={modalVisible}
+        transparent={true}
+        animationType="slide"
         onRequestClose={() => setModalVisible(false)}
       >
-        <View style={styles.modalView}>
-          {editIndex !== null && (
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalHeaderText}>Mevcut Bilgiler</Text>
-              <Text style={styles.modalHeaderText}>Daire No: {users[editIndex]["Daire No"]}</Text>
-              <Text style={styles.modalHeaderText}>Kart No: {users[editIndex]["Kart No"]}</Text>
-            </View>
-          )}
-          <View style={styles.modalInputContainer}>
-            <Text style={styles.modalLabel}>KULLANICI KARTNO</Text>
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalHeaderText}>Kullanıcı Düzenle</Text>
+            <Text style={styles.currentInfoText}>Mevcut Kart Numarası: {cardNumber}</Text>
+            <Text style={styles.currentInfoText}>Mevcut Daire Numarası: {apartmentNumber}</Text>
             <TextInput
               style={styles.modalInput}
               value={cardNumber}
               onChangeText={setCardNumber}
+              placeholder="Kart Numarası"
+              placeholderTextColor={"black"}
               keyboardType='numeric'
             />
-          </View>
-          <View style={styles.modalInputContainer}>
-            <Text style={styles.modalLabel}>DAİRE NOSU</Text>
             <TextInput
               style={styles.modalInput}
               value={apartmentNumber}
               onChangeText={setApartmentNumber}
+              placeholder="Daire Numarası"
+              placeholderTextColor={"black"}
               keyboardType='numeric'
             />
+            <TouchableOpacity style={styles.saveButton} onPress={handleSaveEdit}>
+              <Text style={styles.saveButtonText}>Değişiklikleri Kaydet</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.saveButton} onPress={confirmDeleteUser}>
+              <Text style={styles.saveButtonText}>Kullanıcıyı Sil</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.cancelButton} onPress={() => setModalVisible(false)}>
+              <Text style={styles.cancelButtonText}>İptal</Text>
+            </TouchableOpacity>
           </View>
-          <TouchableOpacity style={[styles.saveButton, { marginBottom: 20 }]} onPress={handleSaveEdit}>
-            <Text style={[styles.saveButtonText]}>Düzenle</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={[styles.saveButton, { marginBottom: 20 }]} onPress={handleDeleteUser}>
-            <Text style={[styles.saveButtonText]}>Kullanıcıyı Sil</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={[styles.saveButton, { marginBottom: 20 }]} onPress={() => setModalVisible(false)}>
-            <Text style={[styles.saveButtonText]}>İptal</Text>
-          </TouchableOpacity>
+        </View>
+      </Modal>
+
+      <Modal
+        visible={isDeleteModalVisible}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={handleCancelDelete}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text>Silmek istediğinize emin misiniz?</Text>
+            <View style={styles.modalButtons}>
+              <TouchableOpacity style={styles.confirmButton} onPress={() => {
+                handleDeleteUser();
+                setIsDeleteModalVisible(false);
+              }}>
+                <Text style={styles.confirmButtonText}>Evet</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.cancelButton} onPress={handleCancelDelete}>
+                <Text style={styles.cancelButtonText}>Hayır</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
         </View>
       </Modal>
     </View>
@@ -235,170 +259,162 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: '#F8F4E1',
   },
-  saveButton: {
-    backgroundColor: '#134B70',
-    padding: 10,
-    borderRadius: 5,
-    width:200,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginVertical: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  saveButtonText: {
-    color: 'white',
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
-  modalHeader: {
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  modalHeaderText: {
-    fontSize: 20,
-    color: 'black',
-    marginBottom: 5,
-  },
-  modalInput: {
-    borderWidth: 3,
-    borderColor: '#ccc',
-    padding: 10,
-    marginBottom: 10,
-    borderRadius: 5,
-    width: 300,
-    color: 'black',
-  },
-  modalLabel: {
-    fontWeight: 'bold',
-    fontSize: 16,
-    marginBottom: 5,
-    color:'black',
-  },
-  modalInputContainer: {
-    marginBottom: 20,
-    alignItems: 'center',
-  },
-  modalView: {
-    flex: 5,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'white',
-    margin: 20,
-    rowGap:15,
-    borderRadius: 10,
-    padding: 35,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-  },
   headerContainer: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 20,
   },
   headerText: {
-    fontSize: 24,
+    fontSize: 20,
+    
     fontWeight: 'bold',
-    textAlign: 'center',
-    color:'black',
+    color: '#2E236C',
   },
   iconButton: {
-    position: 'absolute',
-    left: 0,
+    padding: 10,
   },
   icon: {
-    width: 24,
-    height: 24,
+    width: 20,
+    height: 20,
   },
   subHeaderText: {
     fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 20,
-    textAlign: 'center',
-    color:'black',
-  },
-  searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 20,
-  },
-  searchInput: {
-    flex: 1,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    borderRadius: 5,
-    padding: 10,
-    marginRight: 10,
-    color:'black',
-  },
-  searchButton: {
-    backgroundColor: '#2E236C',
-    padding: 10,
-    borderRadius: 5,
-  },
-  clearSearchButton: {
-    backgroundColor: '#2E236C',
-    padding: 15,
-    borderRadius: 5,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 20,
-  },
-  clearButtonText: {
-    color: 'white',
-    fontWeight: 'bold',
+    color: '#2E236C',
+    marginTop: 20,
+    marginBottom: 10,
   },
   button: {
     backgroundColor: '#2E236C',
     padding: 15,
-    borderRadius: 5,
+    borderRadius: 8,
     alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 20,
+    marginVertical: 10,
   },
   buttonText: {
     color: 'white',
     fontWeight: 'bold',
-    fontSize: 16,
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  searchInput: {
+    flex: 1,
+    borderColor: '#2E236C',
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: 10,
+    marginRight: 10,
+  },
+  searchButton: {
+    backgroundColor: '#2E236C',
+    padding: 15,
+    borderRadius: 8,
+    alignItems: 'center',
   },
   resultsHeader: {
     marginBottom: 10,
-    alignItems: 'center',
   },
-  header: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 5,
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
   headerDown: {
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: 'bold',
   },
-  user: {
+  userContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 10,
+    backgroundColor: 'white',
+    marginBottom: 10,
+    borderRadius: 8,
+  },
+  userText: {
+    fontSize: 16,
+    color:"black",
+  },
+  editButton: {
+    backgroundColor: '#2E236C',
+    padding: 10,
+    borderRadius: 8,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    width: '80%',
+    backgroundColor: '#F8F4E1',
+    borderRadius: 8,
+    padding: 20,
+    alignItems: 'center',
+  },
+  modalHeaderText: {
+    fontSize: 20,
+    color:"black",
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  currentInfoText: {
+    fontSize: 16,
+    color: 'black',
+    marginBottom: 10,
+  },
+  modalInput: {
+    width: '100%',
+    borderColor: '#2E236C',
+    borderWidth: 1,
+    borderRadius: 8,
     padding: 10,
     marginBottom: 10,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 5,
-    backgroundColor: '#fff',
+    color:"black",
   },
-  userNumber: {
-    fontSize: 14,
-    color: '#333',
+  saveButton: {
+    backgroundColor: '#2E236C',
+    padding: 15,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginVertical: 5,
+    width: '100%',
   },
-  selectedUser: {
-    backgroundColor: '#e6e6e6',
+  saveButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
+  cancelButton: {
+    backgroundColor: 'grey',
+    padding: 15,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginVertical: 5,
+    width: '100%',
+  },
+  cancelButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    width: '100%',
+  },
+  confirmButton: {
+    backgroundColor: '#FF0000',
+    padding: 10,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginVertical: 5,
+    width: '45%',
+  },
+  confirmButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
   },
 });
 
