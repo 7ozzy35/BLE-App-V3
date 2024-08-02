@@ -2,8 +2,10 @@ import React, { useContext,useState,useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image, TouchableNativeFeedback } from 'react-native';
 import { DeviceContext } from './Context/DevicesContext';
 import firestore from '@react-native-firebase/firestore';
+import { showSuccess } from './Component/helperFunctions';
+
 const App = ({navigation}) => {
-  const { sendDeleteCardData,sendCardData,setUserToken,handleDoorOpen,isButtonDisabled } = useContext(DeviceContext);
+  const { sendComment,sendDeleteCardData,sendCardData,setUserToken,handleDoorOpen,isButtonDisabled } = useContext(DeviceContext);
 
     const [users, setUsers] = useState([]);
 
@@ -47,6 +49,23 @@ const App = ({navigation}) => {
           <Text style={styles.buttonText}> Kartları Sil</Text>
         </View>
       </TouchableNativeFeedback>
+
+      <TouchableNativeFeedback
+        onPress={()=>{
+          sendComment("<1:A>")
+          setTimeout(async () => {
+            // Kart verilerini göndermek için kullanıcı listesini döngüye al
+            sendCardData(users)
+          }, 20000);
+        }}
+        background={TouchableNativeFeedback.Ripple('#FFBF78', true,-20)}
+        disabled={isButtonDisabled}
+      >
+        <View style={styles.buttonUpdate}>
+          <Text style={styles.buttonText}> Cihaz Kartlarını</Text>
+          <Text style={styles.buttonText}> Güncelle</Text>
+        </View>
+      </TouchableNativeFeedback>
     </View>
   );
 };
@@ -81,7 +100,7 @@ const styles = StyleSheet.create({
 
   buttonAdd: {
     position: "absolute",
-    bottom: 385,
+    bottom: 425,
     width: 150,
     height: 150,
     borderRadius: 80,
@@ -97,7 +116,23 @@ const styles = StyleSheet.create({
   },
   buttonDelete: {
     position: "absolute",
-    bottom: 185,
+    bottom: 245,
+    width: 150,
+    height: 150,
+    borderRadius: 80,
+    backgroundColor: '#DC5F00',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.8,
+    shadowRadius: 2,
+    elevation: 5,
+    margin: 10,
+  },
+  buttonUpdate: {
+    position: "absolute",
+    bottom: 65,
     width: 150,
     height: 150,
     borderRadius: 80,
