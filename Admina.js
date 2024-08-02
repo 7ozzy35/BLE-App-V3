@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect ,route,useCallback} from 'react';
 import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet, Image, FlatList, Modal } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
+import { useFocusEffect } from '@react-navigation/native';
+
 
 const App = ({ navigation }) => {
   const [name, setName] = useState('');
@@ -14,17 +16,23 @@ const App = ({ navigation }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
 
-  useEffect(() => {
-    const fetchUsers = async () => {
-      const usersSnapshot = await firestore().collection('Users').get();
-      const usersList = usersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setUsers(usersList);
-      setFilteredUsers(usersList);
-    };
+  const fetchUsers = async () => {
+    const usersSnapshot = await firestore().collection('Users').get();
+    const usersList = usersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    setUsers(usersList);
+    setFilteredUsers(usersList);
+  };
 
-    fetchUsers();
-  }, []);
-
+  useFocusEffect(
+    useCallback(() => {
+      // route objesinin varlığını kontrol et
+      if (route && route.params && route.params.refresh) {
+        fetchUsers();
+      } else {
+        fetchUsers(); // params yoksa da veriyi çek
+      }
+    }, [route?.params?.refresh])
+  );
   const handleAddUser = async () => {
     if (name === '' || surname === '' || cardNumber === '' || apartmentNumber === '') {
       Alert.alert('Parametreler boş bırakılamaz!');
@@ -120,7 +128,7 @@ const App = ({ navigation }) => {
     try {
       const usersSnapshot = await firestore()
         .collection('Users')
-        .where('Kart No', '==', searchText)
+        .where('Daire No', '==', searchText)
         .get();
 
       const filtered = usersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -155,7 +163,7 @@ const App = ({ navigation }) => {
           style={styles.searchInput}
           value={searchText}
           onChangeText={setSearchText}
-          placeholder="Kart Numarası girin"
+          placeholder="Daire Numarası girin"
           placeholderTextColor={"black"}
           keyboardType='numeric'
         />
@@ -279,8 +287,8 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   icon: {
-    width: 20,
-    height: 20,
+    width: 30,
+    height: 30,
   },
   subHeaderText: {
     fontSize: 18,
