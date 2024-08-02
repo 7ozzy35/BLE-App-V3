@@ -12,6 +12,7 @@ import Admina from './Admina';
 import Home from './Home';
 import User from './User';
 import Onay from './Onay';
+import Aktarim from './Aktarim'
 
 const Stack = createStackNavigator();
 const Routes = () => {
@@ -22,13 +23,18 @@ const Routes = () => {
       <Stack.Navigator screenOptions={{headerShown: false}}>
         {userToken
           ? console.log('evet userToken var')
-          : console.log('hayır bişiyok ')}
+          : console.log('hayır usertoken yok ')}
 
         {userToken ? (
           <Stack.Group>
             <Stack.Screen
               name="User"
               component={User}
+              options={{headerShown: false}}
+            />
+            <Stack.Screen
+              name="Aktarim"
+              component={Aktarim}
               options={{headerShown: false}}
             />
             <Stack.Screen
