@@ -47,9 +47,9 @@ const App = ({ navigation }) => {
     }
   };
 
-  const handleEditUser = (index,userCard1,userDaire1) => {
+  const handleEditUser = (index, userCard1, userDaire1) => {
     const user = users[index];
-    
+
     setCardNumber(userCard1);
     setApartmentNumber(userDaire1);
     setEditIndex(index);
@@ -60,18 +60,18 @@ const App = ({ navigation }) => {
     if (editIndex !== null) {
       const user = users[editIndex];
       const updatedUser = {
-       "Kart No": cardNumber,
-      "Daire No": apartmentNumber
+        "Kart No": cardNumber,
+        "Daire No": apartmentNumber
       };
-  
+
       try {
         await firestore().collection('Users').doc(user.id).update(updatedUser);
-        
+
         const updatedUsers = [...users];
         updatedUsers[editIndex] = { id: user.id, ...updatedUser };
         setUsers(updatedUsers);
         setFilteredUsers(updatedUsers);
-  
+
         setCardNumber('');
         setApartmentNumber('');
         setEditIndex(null);
@@ -120,12 +120,11 @@ const App = ({ navigation }) => {
     try {
       const usersSnapshot = await firestore()
         .collection('Users')
-        .where('apartmentNumber', '==', searchText)
+        .where('Kart No', '==', searchText)
         .get();
 
       const filtered = usersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setFilteredUsers(filtered);
-      console.log('Filtreli');
     } catch (error) {
       console.error('Error searching users: ', error);
     }
@@ -148,7 +147,7 @@ const App = ({ navigation }) => {
       <Text style={styles.subHeaderText}>KAYITLI {users.length} KULLANICI VAR</Text>
 
       <TouchableOpacity style={styles.button} onPress={() => { navigation.navigate("Onay") }}>
-        <Text style={styles.buttonText}>Onay Bekleyenler</Text>
+        <Text style={styles.buttonText}>Kart Ekle</Text>
       </TouchableOpacity>
 
       <View style={styles.searchContainer}>
@@ -156,19 +155,24 @@ const App = ({ navigation }) => {
           style={styles.searchInput}
           value={searchText}
           onChangeText={setSearchText}
-          placeholder="Daire numarası girin"
+          placeholder="Kart Numarası girin"
           placeholderTextColor={"black"}
+          keyboardType='numeric'
         />
         <TouchableOpacity style={styles.searchButton} onPress={handleSearch}>
           <Text style={styles.buttonText}>ARA</Text>
         </TouchableOpacity>
+       
       </View>
+      <TouchableOpacity style={styles.searchButton} onPress={handleClearSearch}>
+          <Text style={styles.buttonText}>Arama Sonucunu Sil</Text>
+        </TouchableOpacity>
 
       <View style={styles.resultsHeader}>
         <Text style={[styles.headerText, { fontSize: 15 }]}>Sonuçlar</Text>
         <View style={styles.headerRow}>
-          <Text style={[styles.headerDown, { color: '#2E236C', marginRight: 100}]}>Daire No</Text>
-          <Text style={[styles.headerDown, { color: '#2E236C', marginRight: 150 }]}>Kart No</Text>
+          <Text style={[styles.headerDown, { color: '#2E236C', marginRight: 100 }]}>Kart No</Text>
+          <Text style={[styles.headerDown, { color: '#2E236C', marginRight: 150 }]}>Daire No</Text>
         </View>
       </View>
 
@@ -178,7 +182,7 @@ const App = ({ navigation }) => {
           <View style={styles.userContainer}>
             <Text style={styles.userText}>{item["Kart No"]}</Text>
             <Text style={styles.userText}>{item["Daire No"]}</Text>
-            <TouchableOpacity style={styles.editButton} onPress={() => handleEditUser(index,item["Kart No"],item["Daire No"])}>
+            <TouchableOpacity style={styles.editButton} onPress={() => handleEditUser(index, item["Kart No"], item["Daire No"])}>
               <Text style={styles.buttonText}>Düzenle</Text>
             </TouchableOpacity>
           </View>
@@ -234,7 +238,7 @@ const App = ({ navigation }) => {
       >
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
-            <Text>Silmek istediğinize emin misiniz?</Text>
+            <Text style={styles.modalText}>Kullanıcıyı silmek ister misiniz?</Text>
             <View style={styles.modalButtons}>
               <TouchableOpacity style={styles.confirmButton} onPress={() => {
                 handleDeleteUser();
@@ -252,6 +256,7 @@ const App = ({ navigation }) => {
     </View>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {
@@ -299,8 +304,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 20,
   },
+  modalText: {
+    color: 'black',
+    fontSize: 18,
+    marginBottom: 20,
+  },
   searchInput: {
     flex: 1,
+    color:"black",
     borderColor: '#2E236C',
     borderWidth: 1,
     borderRadius: 8,
@@ -349,10 +360,10 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContent: {
-    width: '80%',
-    backgroundColor: '#F8F4E1',
-    borderRadius: 8,
+    width: 300,
     padding: 20,
+    backgroundColor: '#F8F4E1',
+    borderRadius: 10,
     alignItems: 'center',
   },
   modalHeaderText: {
@@ -388,7 +399,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   cancelButton: {
-    backgroundColor: 'grey',
+    backgroundColor: 'red',
     padding: 15,
     borderRadius: 8,
     alignItems: 'center',
@@ -401,21 +412,31 @@ const styles = StyleSheet.create({
   },
   modalButtons: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
+    margin:25,
+    marginTop: 20,
+    justifyContent: 'center',
     width: '100%',
   },
   confirmButton: {
-    backgroundColor: '#FF0000',
+    backgroundColor: '#2E236C',
     padding: 10,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginVertical: 5,
-    width: '45%',
+    borderRadius: 5,
+    marginHorizontal: 10, // add space between buttons
+  },
+  cancelButton: {
+    backgroundColor: 'red',
+    padding: 10,
+    borderRadius: 5,
+    marginHorizontal: 10, // add space between buttons
   },
   confirmButtonText: {
     color: 'white',
-    fontWeight: 'bold',
+    fontSize: 16,
   },
+  cancelButtonText: {
+    color: 'white',
+    fontSize: 16,
+  }
 });
 
 export default App;
