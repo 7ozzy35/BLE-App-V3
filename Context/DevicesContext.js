@@ -3,6 +3,8 @@ import { BleManager } from 'react-native-ble-plx';
 import { Buffer } from 'buffer';
 import { myId,OpenDoorComment,characteristicUUID,serviceUUID } from '../Component/DeviceInfo'
 
+import { showError,showSuccess } from "../Component/helperFunctions";
+
 export const DeviceContext = createContext();
 let bleManager = new BleManager();
 
@@ -60,6 +62,7 @@ export const DeviceProvider = ({ children }) => {
       // const data = '<1:34625:4:3>';
       await sendDataToDevice(device,serviceUUID, characteristicUUID, OpenDoorComment);
       console.log('Door open command sent');
+      showSuccess("kapı açma başarılı")
       const disconnectDevice2= async () => {
         if (device) {
           try {
@@ -106,6 +109,9 @@ export const DeviceProvider = ({ children }) => {
       // const data = '<1:34625:4:3>';
       await sendDataToDevice(device,serviceUUID, characteristicUUID, sendData);
       console.log('Door open command sent');
+      if(sendData == "<1:A>"){
+        showSuccess("Cihaz Güncelleniyor lütfen 10 - 15 saniye bekleyiniz...")
+      }
       const disconnectDevice2= async () => {
         if (device) {
           try {
@@ -184,7 +190,8 @@ export const DeviceProvider = ({ children }) => {
         
       
       
-      console.log('Door open command sent');
+      console.log('Add Card command sent');
+      showSuccess("Kart Aktarma başarılı")
       const disconnectDevice2= async () => {
         if (device) {
           try {
@@ -261,7 +268,8 @@ export const DeviceProvider = ({ children }) => {
         
       
       
-      console.log('Door open command sent');
+      console.log('Delete Card command sent');
+      
       const disconnectDevice2= async () => {
         if (device) {
           try {
@@ -334,7 +342,7 @@ export const DeviceProvider = ({ children }) => {
   
 
   return (
-    <DeviceContext.Provider value={{ sendDeleteCardData,sendCardData,kartNo, setKartNo,userİnfo, setUserİnfo,userToken, setUserToken,connectedDevice, setConnectedDevice, handleDoorOpen, sendDataToDevice, disconnectDevice, disconnectMessage, disconnectButtonVisible, setDisconnectButtonVisible, setDisconnectMessage, isButtonDisabled }}>
+    <DeviceContext.Provider value={{ sendComment,sendDeleteCardData,sendCardData,kartNo, setKartNo,userİnfo, setUserİnfo,userToken, setUserToken,connectedDevice, setConnectedDevice, handleDoorOpen, sendDataToDevice, disconnectDevice, disconnectMessage, disconnectButtonVisible, setDisconnectButtonVisible, setDisconnectMessage, isButtonDisabled }}>
       {children}
     </DeviceContext.Provider>
   );
