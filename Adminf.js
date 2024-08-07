@@ -1,18 +1,27 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, Alert, Image, StyleSheet,TouchableNativeFeedback } from 'react-native';
 import { DeviceContext } from './Context/DevicesContext'
-import { useContext } from 'react';
+import { useContext,useEffect } from 'react';
 import Icon from 'react-native-vector-icons/Octicons';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const AdminScreen = ({ navigation }) => {
  
-  const { kartNo,setUserToken,connectedDevice,setConnectedDevice, handleDoorOpen, disconnectDevice, disconnectMessage, disconnectButtonVisible, setDisconnectButtonVisible,isButtonDisabled} = useContext(DeviceContext)
-  const myId = "12:6C:14:38:F5:40"; // Replace with your device ID
+  const { myId, setMyId,kartNo,setUserToken,connectedDevice,setConnectedDevice, handleDoorOpen, disconnectDevice, disconnectMessage, disconnectButtonVisible, setDisconnectButtonVisible,isButtonDisabled} = useContext(DeviceContext)
+  // const myId = "12:6C:14:38:F5:40";
+   // Replace with your device ID
 
-  const handlePress = (buttonName) => {
-    
-    
-  };
+ const  IdControl = async () => {
+  const gelenDeger = await AsyncStorage.getItem("my-key");
+  console.log(gelenDeger)
+   setMyId(gelenDeger)
+  }
+
+
+  useEffect(() => {
+    IdControl();
+
+  }, [])
 
   return (
     <View style={styles.container}>

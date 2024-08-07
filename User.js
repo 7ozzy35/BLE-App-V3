@@ -1,10 +1,24 @@
-import React, { useContext } from 'react';
+import React, { useContext,useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image, TouchableNativeFeedback } from 'react-native';
 import { DeviceContext } from './Context/DevicesContext';
 import Icon from 'react-native-vector-icons/Octicons';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const App = ({navigation}) => {
-  const {  kartNo, setKartNo,setUserToken,handleDoorOpen,isButtonDisabled } = useContext(DeviceContext);
+  const {  myId,setMyId,kartNo, setKartNo,setUserToken,handleDoorOpen,isButtonDisabled } = useContext(DeviceContext);
+
+  const  IdControl = async () => {
+    const gelenDeger = await AsyncStorage.getItem("my-key");
+    console.log(gelenDeger)
+     setMyId(gelenDeger)
+    }
+  
+  
+    useEffect(() => {
+      IdControl();
+      console.log
+  
+    }, [])
 
   return (
     <View style={styles.container}>
