@@ -1,10 +1,14 @@
-import React, { useState, useEffect ,route,useCallback} from 'react';
+import React, { useState, useEffect ,route,useCallback,useContext} from 'react';
 import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet, Image, FlatList, Modal } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 import { useFocusEffect } from '@react-navigation/native';
-
+import { DeviceContext } from './Context/DevicesContext';
 
 const App = ({ navigation }) => {
+
+  const {  myId,setMyId,kartNo, setKartNo,setUserToken,handleDoorOpen,isButtonDisabled } = useContext(DeviceContext);
+
+
   const [name, setName] = useState('');
   const [surname, setSurname] = useState('');
   const [cardNumber, setCardNumber] = useState('');
@@ -17,7 +21,7 @@ const App = ({ navigation }) => {
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
 
   const fetchUsers = async () => {
-    const usersSnapshot = await firestore().collection('Users').get();
+    const usersSnapshot = await firestore().collection(myId).get();
     const usersList = usersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     setUsers(usersList);
     setFilteredUsers(usersList);
@@ -42,7 +46,7 @@ const App = ({ navigation }) => {
     const newUser = { name, surname, cardNumber, apartmentNumber };
 
     try {
-      const userDoc = await firestore().collection('Users').add(newUser);
+      const userDoc = await firestore().collection(myId).add(newUser);
       const newUserWithId = { id: userDoc.id, ...newUser };
       setUsers([...users, newUserWithId]);
       setFilteredUsers([...users, newUserWithId]);
@@ -73,7 +77,7 @@ const App = ({ navigation }) => {
       };
 
       try {
-        await firestore().collection('Users').doc(user.id).update(updatedUser);
+        await firestore().collection(myId).doc(user.id).update(updatedUser);
 
         const updatedUsers = [...users];
         updatedUsers[editIndex] = { id: user.id, ...updatedUser };
@@ -95,7 +99,7 @@ const App = ({ navigation }) => {
       const user = users[editIndex];
 
       try {
-        await firestore().collection('Users').doc(user.id).delete();
+        await firestore().collection(myId).doc(user.id).delete();
         const updatedUsers = users.filter((_, i) => i !== editIndex);
         setUsers(updatedUsers);
         setFilteredUsers(updatedUsers);
@@ -127,7 +131,7 @@ const App = ({ navigation }) => {
 
     try {
       const usersSnapshot = await firestore()
-        .collection('Users')
+        .collection()
         .where('Daire No', '==', searchText)
         .get();
 
