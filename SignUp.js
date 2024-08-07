@@ -1,8 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState ,useContext} from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
+import { DeviceContext } from './Context/DevicesContext';
+
 
 const RegisterScreen = () => {
+
+  const {  myId,setMyId} = useContext(DeviceContext);
+
+
   const [AdSoyad, setAdSoyad] = useState('');
   const [surAdSoyad, setSurAdSoyad] = useState('');
   const [DaireNo, setDaireNo] = useState('');
@@ -19,7 +25,7 @@ const RegisterScreen = () => {
     }
 
     try {
-      await firestore().collection('Users').add({
+      await firestore().collection(myId).add({
         'Ad Soyad': `${AdSoyad} `,
         'Daire No': DaireNo,
         'Email': Email,

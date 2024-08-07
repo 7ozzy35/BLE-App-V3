@@ -1,9 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState,useContext } from 'react';
 import { View, TextInput, Text, Alert, StyleSheet, Image } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import { DeviceContext } from './Context/DevicesContext';
 
 const AddUserForm = ({ navigation }) => {
+
+  const {  myId,setMyId } = useContext(DeviceContext);
+
   const [cardNumber, setCardNumber] = useState('');
   const [apartmentNumber, setApartmentNumber] = useState('');
 
@@ -14,7 +18,7 @@ const AddUserForm = ({ navigation }) => {
     }
 
     try {
-      await firestore().collection('Users').add({
+      await firestore().collection(myId).add({
         'Kart No': cardNumber,
         'Daire No': apartmentNumber,
         'Yetki': false,
