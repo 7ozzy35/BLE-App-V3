@@ -1,19 +1,24 @@
 import React, { useState,useContext } from 'react';
 import { View, TextInput, Button, StyleSheet, Text } from 'react-native';
 import { checkAndAddDocument } from './FirestoreService';
-
+import { DeviceContext } from './Context/DevicesContext';
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import Kurulum from './Kurulum';
 
 
 const CheckCardPage = () => {
   const [collectionName, setCollectionName] = useState('');
   const [cardNo, setCardNo] = useState('');
   const [message, setMessage] = useState('');
+ 
+  const { userToken, kurulumState,setKurulumState } = useContext(DeviceContext);
 
   const handleCheckCard = async () => {
     const gelenDeger = await AsyncStorage.getItem("my-key");
     const result = await checkAndAddDocument(gelenDeger, cardNo);
     setMessage(result);
+    setKurulumState(true);
+    
   };
 
   return (

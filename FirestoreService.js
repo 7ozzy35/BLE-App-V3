@@ -16,7 +16,7 @@ const checkAndAddDocument = async (collectionName, cardNo) => {
       await collectionRef.add({
         'Daire No': '',
         'Kart No': cardNo,
-        'Onay': isCollectionEmpty ? true : false,
+        'Onay':  true ,
         'Yetki': isCollectionEmpty ? true : false,
       });
       return isCollectionEmpty ? 'Yeni koleksiyon oluşturuldu ve kart numarası yetki ve onay ile eklendi' : 'Kart numarası oluşturuldu';

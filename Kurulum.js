@@ -70,7 +70,7 @@ const Kurulum = ({ navigation }) => {
 
     setTimeout(() => {
       bleManager.stopDeviceScan();
-    }, 4000);
+    }, 6000);
   };
 
   const onConnect = async (device) => {
@@ -148,8 +148,9 @@ const Kurulum = ({ navigation }) => {
         )}
         <Text style={styles.modalText}>Bağlanabilir mi?: {selectedDevice.isConnectable ? 'Evet' : 'Hayır'}</Text>
         <TouchableOpacity style={styles.modalButton} onPress={() => {
-          setKurulumState(true),
-          cihazDogrulama(selectedDevice.id)
+          
+          cihazDogrulama(selectedDevice.id),
+          navigation.navigate("Aktivasyon")
 
 
         }}>

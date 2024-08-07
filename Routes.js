@@ -24,11 +24,18 @@ const Routes = () => {
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {kurulumState === false ? (
           // Eğer kurulumState false ise Kurulum ekranına yönlendirilir
+          <>
           <Stack.Screen
             name="Kurulum"
             component={Kurulum}
             options={{ headerShown: false }}
           />
+          <Stack.Screen
+                  name="Aktivasyon"
+                  component={Aktivasyon}
+                  options={{ headerShown: false }}
+                />
+                </>
         ) : (
           // Eğer kurulumState true ise mevcut yapı çalışır
           <>
@@ -77,11 +84,7 @@ const Routes = () => {
                   component={SignUp}
                   options={{ headerShown: false }}
                 />
-                <Stack.Screen
-                  name="Aktivasyon"
-                  component={Aktivasyon}
-                  options={{ headerShown: false }}
-                />
+                
               </Stack.Group>
             )}
           </>
