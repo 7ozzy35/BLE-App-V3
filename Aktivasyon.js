@@ -1,6 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState,useContext } from 'react';
 import { View, TextInput, Button, StyleSheet, Text } from 'react-native';
 import { checkAndAddDocument } from './FirestoreService';
+
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
 
 const CheckCardPage = () => {
   const [collectionName, setCollectionName] = useState('');
@@ -8,18 +11,14 @@ const CheckCardPage = () => {
   const [message, setMessage] = useState('');
 
   const handleCheckCard = async () => {
-    const result = await checkAndAddDocument(collectionName, cardNo);
+    const gelenDeger = await AsyncStorage.getItem("my-key");
+    const result = await checkAndAddDocument(gelenDeger, cardNo);
     setMessage(result);
   };
 
   return (
     <View style={styles.container}>
-      <TextInput
-        style={styles.input}
-        placeholder="Bina Adı"
-        value={collectionName}
-        onChangeText={setCollectionName}
-      />
+      
       <TextInput
         style={styles.input}
         placeholder="Kart No"
