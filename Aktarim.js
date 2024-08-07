@@ -5,13 +5,13 @@ import firestore from '@react-native-firebase/firestore';
 import { showSuccess } from './Component/helperFunctions';
 
 const App = ({navigation}) => {
-  const { sendComment,sendDeleteCardData,sendCardData,setUserToken,handleDoorOpen,isButtonDisabled } = useContext(DeviceContext);
+  const { myId,sendComment,sendDeleteCardData,sendCardData,setUserToken,handleDoorOpen,isButtonDisabled } = useContext(DeviceContext);
 
     const [users, setUsers] = useState([]);
 
     useEffect(() => {
         const fetchUsers = async () => {
-          const usersSnapshot = await firestore().collection('Users').get();
+          const usersSnapshot = await firestore().collection(myId).get();
           const usersList = usersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
           console.log("userlistesi",usersList)
           setUsers(usersList);
