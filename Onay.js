@@ -33,7 +33,7 @@ const AddUserForm = ({ navigation }) => {
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerText}>Kullanıcı Kartı Ekleme Ekranı</Text>
-        <TouchableOpacity style={styles.iconButton} onPress={() => navigation.goBack()}>
+        <TouchableOpacity style={styles.iconButton} onPress={() => navigation.goBack({ refresh: true })}>
           <Image source={require('./assets/previous.png')} style={styles.icon} />
         </TouchableOpacity>
       </View>
