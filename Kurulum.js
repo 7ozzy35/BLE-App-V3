@@ -6,9 +6,10 @@ import { Buffer } from 'buffer';
 const bleManager = new BleManager();
 import { DeviceContext } from './Context/DevicesContext';
 import { showSuccess } from './Component/helperFunctions';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Kurulum = ({ navigation }) => {
-  const { connectedDevice, setConnectedDevice } = useContext(DeviceContext);
+  const { kurulumState, setKurulumState,connectedDevice, setConnectedDevice } = useContext(DeviceContext);
   const [devices, setDevices] = useState([]);
   const [selectedDevice, setSelectedDevice] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
@@ -127,7 +128,12 @@ const Kurulum = ({ navigation }) => {
     setSelectedDevice(device);
     setModalVisible(true);
   };
-
+  
+  async function cihazDogrulama(value) {
+    
+    await AsyncStorage.removeItem('my-key');
+    await AsyncStorage.setItem('my-key', value);
+  }
   const renderModalContent = () => (
     <View style={styles.modalContainer}>
       <View style={styles.modalContent}>
@@ -141,10 +147,15 @@ const Kurulum = ({ navigation }) => {
           </>
         )}
         <Text style={styles.modalText}>Bağlanabilir mi?: {selectedDevice.isConnectable ? 'Evet' : 'Hayır'}</Text>
-        <TouchableOpacity style={styles.modalButton} onPress={() => {}}>
+        <TouchableOpacity style={styles.modalButton} onPress={() => {
+          setKurulumState(true),
+          cihazDogrulama(selectedDevice.id)
+
+
+        }}>
           <Text style={styles.modalButtonText}>Cihazı Doğrula</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.modalButton} onPress={() => setModalVisible(false)}>
+        <TouchableOpacity style={styles.modalButton} onPress={() => {setModalVisible(false)}}>
           <Text style={styles.modalButtonText}>Kapat</Text>
         </TouchableOpacity>
       </View>
@@ -153,7 +164,7 @@ const Kurulum = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.disconnectButton} onPress={disconnectDevice}>
+      <TouchableOpacity style={styles.disconnectButton} onPress={()=>{setKurulumState(true)}}>
         <Text style={styles.buttonText}>Disconnect</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.scanButton} onPress={scanDevices}>
