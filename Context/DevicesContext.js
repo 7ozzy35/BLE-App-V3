@@ -12,7 +12,7 @@ let bleManager = new BleManager();
 export const DeviceProvider = ({ children }) => {
 
 
-  const [kurulumState, setKurulumState] = useState(false);
+  const [kurulumState, setKurulumState] = useState(true);
   const [kartNo, setKartNo] = useState('');
 
   const [userToken, setUserToken] = useState(false);
