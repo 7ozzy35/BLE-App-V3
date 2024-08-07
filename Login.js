@@ -1,10 +1,10 @@
 import React, { useContext, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
-import { DeviceContext } from './Context/DevicesContext';
+import { DeviceContext } from './Context/DevicesContext';import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const LoginScreen = ({ navigation }) => {
-  const { userToken, setUserToken, kartNo, setKartNo} = useContext(DeviceContext);
+  const { userToken, setUserToken, kartNo, setKartNo,kurulumState, setKurulumState} = useContext(DeviceContext);
 
   const [phone, setPhone] = useState('');
   const [error, setError] = useState('');
@@ -57,6 +57,9 @@ const LoginScreen = ({ navigation }) => {
         />
         <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
           <Text style={styles.buttonText}>Giriş Yap</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.loginButton} onPress={()=>{setKurulumState(false)}}>
+          <Text style={styles.buttonText}>Kurulum</Text>
         </TouchableOpacity>
       </View>
     </View>
