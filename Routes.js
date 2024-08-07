@@ -28,7 +28,7 @@ const Routes = () => {
           <Stack.Screen
             name="Kurulum"
             component={Kurulum}
-            options={{ headerShown: false }}
+            options={{ headerShown:false }}
           />
           <Stack.Screen
                   name="Aktivasyon"

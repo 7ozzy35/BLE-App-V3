@@ -6,24 +6,22 @@ const checkAndAddDocument = async (collectionName, cardNo) => {
     const querySnapshot = await collectionRef.where('Kart No', '==', cardNo).get();
 
     if (!querySnapshot.empty) {
-      // Kart numarası mevcutsa eşleşme başarılı mesajı döndür
-      return 'Tüm eşleşmeler başarılı';
+      return 'Kart Numarası zaten kayıtlı';
     } else {
-      // Kart numarası mevcut değilse yeni bir belge ekle
       const collectionSnapshot = await collectionRef.get();
       const isCollectionEmpty = collectionSnapshot.empty;
       
       await collectionRef.add({
         'Daire No': '',
         'Kart No': cardNo,
-        'Onay':  true ,
+        'Onay': true,
         'Yetki': isCollectionEmpty ? true : false,
       });
-      return isCollectionEmpty ? 'Yeni koleksiyon oluşturuldu ve kart numarası yetki ve onay ile eklendi' : 'Kart numarası oluşturuldu';
+      return isCollectionEmpty ? 'Yeni Cihaz Girişi oluşturuldu ve kart numarası yetki ve onay ile eklendi' : 'Kart numarası cihaza kaydedildi oluşturuldu';
     }
   } catch (error) {
     console.error('Error checking or adding document: ', error);
-    return 'Bir hata oluştu';
+    throw new Error('Bir hata oluştu');
   }
 };
 

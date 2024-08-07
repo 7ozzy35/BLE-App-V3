@@ -14,41 +14,7 @@ const Kurulum = ({ navigation }) => {
   const [selectedDevice, setSelectedDevice] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
 
-  useEffect(() => {
-    const firstFunc = async () => {
-      const requestPermissions = async () => {
-        if (Platform.OS === 'android' && Platform.Version >= 23) {
-          try {
-            const granted = await PermissionsAndroid.requestMultiple([
-              PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-              PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
-              PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
-            ]);
-
-            if (
-              granted['android.permission.ACCESS_FINE_LOCATION'] === PermissionsAndroid.RESULTS.GRANTED &&
-              granted['android.permission.BLUETOOTH_SCAN'] === PermissionsAndroid.RESULTS.GRANTED &&
-              granted['android.permission.BLUETOOTH_CONNECT'] === PermissionsAndroid.RESULTS.GRANTED
-            ) {
-              console.log('Location and Bluetooth permissions granted');
-            } else {
-              console.log('Location and/or Bluetooth permissions denied');
-            }
-          } catch (err) {
-            console.warn(err);
-          }
-        }
-      };
-
-      await requestPermissions();
-    };
-
-    firstFunc();
-
-    return () => {
-      bleManager.destroy();
-    };
-  }, []);
+ 
 
   const scanDevices = () => {
     showSuccess("Tarama Başladı")
@@ -70,7 +36,7 @@ const Kurulum = ({ navigation }) => {
 
     setTimeout(() => {
       bleManager.stopDeviceScan();
-    }, 6000);
+    }, 20000);
   };
 
   const onConnect = async (device) => {
@@ -120,9 +86,7 @@ const Kurulum = ({ navigation }) => {
     }
   };
 
-  const calculateDistance = (rssi, txPower = -59, n = 2) => {
-    return Math.pow(10, (txPower - rssi) / (10 * n));
-  };
+
 
   const handleDevicePress = (device) => {
     setSelectedDevice(device);
@@ -139,14 +103,8 @@ const Kurulum = ({ navigation }) => {
       <View style={styles.modalContent}>
         <Text style={styles.modalTitle}>Cihaz Bilgileri</Text>
         <Text style={styles.modalText}>Cihaz Adı: {selectedDevice.name || 'İsimsiz cihaz'}</Text>
-        <Text style={styles.modalText}>Cihaz ID: {selectedDevice.id}</Text>
-        {selectedDevice.rssi && (
-          <>
-            <Text style={styles.modalText}>RSSI: {selectedDevice.rssi}</Text>
-            <Text style={styles.modalText}>Tahmini Mesafe: {calculateDistance(selectedDevice.rssi).toFixed(2)} metre</Text>
-          </>
-        )}
-        <Text style={styles.modalText}>Bağlanabilir mi?: {selectedDevice.isConnectable ? 'Evet' : 'Hayır'}</Text>
+        
+        <Text style={styles.modalText}>CİHAZ DURUMU = {selectedDevice.isConnectable ? 'AÇIK' : 'KAPALI'}</Text>
         <TouchableOpacity style={styles.modalButton} onPress={() => {
           
           cihazDogrulama(selectedDevice.id),
@@ -166,24 +124,18 @@ const Kurulum = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <TouchableOpacity style={styles.disconnectButton} onPress={()=>{setKurulumState(true)}}>
-        <Text style={styles.buttonText}>Disconnect</Text>
+        <Text style={styles.buttonText}>ÇIKIŞ</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.scanButton} onPress={scanDevices}>
-        <Text style={styles.buttonText}>Scan for BLE Devices</Text>
+        <Text style={styles.buttonText}>BLUETOOTH CİHAZLARINI TARA</Text>
       </TouchableOpacity>
       <FlatList
         data={devices}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <TouchableOpacity style={styles.device} onPress={() => handleDevicePress(item)}>
-            <Text style={styles.deviceName}>Device Name: {item.name || 'Unnamed device'}</Text>
-            <Text style={styles.deviceId}>Device ID: {item.id}</Text>
-            {item.rssi && (
-              <>
-                <Text style={styles.deviceRssi}>RSSI: {item.rssi}</Text>
-                <Text style={styles.deviceDistance}>Estimated Distance: {calculateDistance(item.rssi).toFixed(2)} meters</Text>
-              </>
-            )}
+            <Text style={styles.deviceName}>CİHAZ ADI :   {item.name || 'Unnamed device'}</Text>
+           
           </TouchableOpacity>
         )}
         contentContainerStyle={styles.deviceList}
@@ -205,11 +157,11 @@ const Kurulum = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f0f4f7',
+    backgroundColor: '#F8F4E1',
     padding: 16,
   },
   scanButton: {
-    backgroundColor: '#007bff',
+    backgroundColor: '#2E236C',
     padding: 16,
     borderRadius: 8,
     marginVertical: 16,
@@ -282,12 +234,13 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     width: '90%',
-    backgroundColor: '#fff',
+    backgroundColor: '#F8F4E1',
     borderRadius: 8,
     padding: 16,
     alignItems: 'center',
   },
   modalTitle: {
+    color:'black',
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 12,
@@ -299,7 +252,7 @@ const styles = StyleSheet.create({
   },
   modalButton: {
     marginTop: 20,
-    backgroundColor: '#007bff',
+    backgroundColor: '#2E236C',
     padding: 12,
     borderRadius: 8,
   },
