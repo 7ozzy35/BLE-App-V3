@@ -4,7 +4,7 @@ import { DeviceContext } from './Context/DevicesContext';
 import Icon from 'react-native-vector-icons/Octicons';
 
 const App = ({navigation}) => {
-  const { setUserToken,handleDoorOpen,isButtonDisabled } = useContext(DeviceContext);
+  const {  kartNo, setKartNo,setUserToken,handleDoorOpen,isButtonDisabled } = useContext(DeviceContext);
 
   return (
     <View style={styles.container}>
@@ -29,7 +29,7 @@ const App = ({navigation}) => {
         </View>
       )} */}
       <TouchableNativeFeedback
-        onPress={handleDoorOpen}
+        onPress={()=>{console.log("kart numarası .:",kartNo),handleDoorOpen(kartNo)}}
         background={TouchableNativeFeedback.Ripple('#FFBF78', true,-20)}
         disabled={isButtonDisabled}
       >

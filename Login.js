@@ -8,7 +8,7 @@ const LoginScreen = ({ navigation }) => {
 
   const [phone, setPhone] = useState('');
   const [error, setError] = useState('');
-  
+  const [kartNoLocal, setKartNoLocal] = useState(null)
 
 
   const handleLogin = async () => {

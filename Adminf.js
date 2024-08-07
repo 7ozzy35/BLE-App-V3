@@ -6,7 +6,7 @@ import Icon from 'react-native-vector-icons/Octicons';
 
 const AdminScreen = ({ navigation }) => {
  
-  const {setUserToken,connectedDevice,setConnectedDevice, handleDoorOpen, disconnectDevice, disconnectMessage, disconnectButtonVisible, setDisconnectButtonVisible,isButtonDisabled} = useContext(DeviceContext)
+  const { kartNo,setUserToken,connectedDevice,setConnectedDevice, handleDoorOpen, disconnectDevice, disconnectMessage, disconnectButtonVisible, setDisconnectButtonVisible,isButtonDisabled} = useContext(DeviceContext)
   const myId = "12:6C:14:38:F5:40"; // Replace with your device ID
 
   const handlePress = (buttonName) => {
@@ -30,7 +30,7 @@ const AdminScreen = ({ navigation }) => {
         {disconnectMessage ? <Text style={styles.disconnectMessage}>{disconnectMessage}</Text> : null} 
         </View> */}
         <TouchableNativeFeedback
-        onPress={handleDoorOpen}
+        onPress={()=>{console.log("kart numarası .:",kartNo),handleDoorOpen(kartNo)}}
         background={TouchableNativeFeedback.Ripple('blue', true,-20)}
         disabled={isButtonDisabled}
       >
