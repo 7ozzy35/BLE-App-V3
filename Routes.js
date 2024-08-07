@@ -13,6 +13,7 @@ import User from './User';
 import Onay from './Onay';
 import Aktarim from './Aktarim';
 import Kurulum from './Kurulum';
+import Aktivasyon from './Aktivasyon';
 
 const Stack = createStackNavigator();
 const Routes = () => {
@@ -74,6 +75,11 @@ const Routes = () => {
                 <Stack.Screen
                   name="SignUp"
                   component={SignUp}
+                  options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                  name="Aktivasyon"
+                  component={Aktivasyon}
                   options={{ headerShown: false }}
                 />
               </Stack.Group>
