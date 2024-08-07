@@ -1,10 +1,11 @@
 import React, { useContext, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
-import { DeviceContext } from './Context/DevicesContext'; import AsyncStorage from "@react-native-async-storage/async-storage";
+import { DeviceContext } from './Context/DevicesContext';
+ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const LoginScreen = ({ navigation }) => {
-  const { userToken, setUserToken, kartNo, setKartNo, kurulumState, setKurulumState } = useContext(DeviceContext);
+  const { myId,userToken, setUserToken, kartNo, setKartNo, kurulumState, setKurulumState } = useContext(DeviceContext);
 
   const [phone, setPhone] = useState('');
   const [error, setError] = useState('');
@@ -13,9 +14,11 @@ const LoginScreen = ({ navigation }) => {
 
   const handleLogin = async () => {
     setError('');
+    const gelenDeger = await AsyncStorage.getItem("my-key");
     try {
+      console.log("my Id nedir acaba ==>>",gelenDeger)
       const userSnapshot = await firestore()
-        .collection('Users')
+        .collection(gelenDeger)
         .where('Kart No', '==', kartNo)
         .limit(1)
         .get();
