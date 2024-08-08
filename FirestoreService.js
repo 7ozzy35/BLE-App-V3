@@ -15,6 +15,8 @@ const checkAndAddDocument = async (collectionName, cardNo) => {
         'Daire No': '',
         'Kart No': cardNo,
         'Onay': true,
+        'Pay': true,
+        
         'Yetki': isCollectionEmpty ? true : false,
       });
       return isCollectionEmpty ? 'Yeni Cihaz Girişi oluşturuldu ve kart numarası yetki ve onay ile eklendi' : 'Kart numarası cihaza kaydedildi oluşturuldu';
