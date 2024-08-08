@@ -49,6 +49,16 @@ const App = ({navigation}) => {
           <Text style={styles.buttonText}> Kartları Sil</Text>
         </View>
       </TouchableNativeFeedback>
+      <TouchableNativeFeedback
+        onPress={()=>{sendComment("<1:C>")}}
+        background={TouchableNativeFeedback.Ripple('#FFBF78', true,-20)}
+        disabled={isButtonDisabled}
+      >
+        <View style={styles.buttonReadCard}>
+          <Text style={styles.buttonText}> Cihaz kartlarını </Text>
+          <Text style={styles.buttonText}> Oku</Text>
+        </View>
+      </TouchableNativeFeedback>
 
       <TouchableNativeFeedback
         onPress={()=>{
@@ -117,6 +127,22 @@ const styles = StyleSheet.create({
   buttonDelete: {
     position: "absolute",
     bottom: 245,
+    width: 150,
+    height: 150,
+    borderRadius: 80,
+    backgroundColor: '#DC5F00',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.8,
+    shadowRadius: 2,
+    elevation: 5,
+    margin: 10,
+  },
+  buttonReadCard: {
+    position: "absolute",
+    bottom: 600,
     width: 150,
     height: 150,
     borderRadius: 80,

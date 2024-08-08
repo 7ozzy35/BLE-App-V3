@@ -1,7 +1,7 @@
 import React, { useState, createContext, useCallback } from 'react';
 import { BleManager } from 'react-native-ble-plx';
 import { Buffer } from 'buffer';
-import {  OpenDoorComment, characteristicUUID, serviceUUID } from '../Component/DeviceInfo'
+import { OpenDoorComment, characteristicUUID, serviceUUID } from '../Component/DeviceInfo'
 
 import { showError, showSuccess } from "../Component/helperFunctions";
 import { Console } from 'console';
@@ -11,9 +11,12 @@ let bleManager = new BleManager();
 
 export const DeviceProvider = ({ children }) => {
 
-const [myId, setMyId] = useState('myID boşşşş');
+  const uniqueNumbers = new Set();  // Benzersiz sayılar için küme
+
+  const [myId, setMyId] = useState('myID boşşşş');
   const [kurulumState, setKurulumState] = useState(true);
   const [kartNo, setKartNo] = useState('');
+  const [kartSayisi, setKartSayisi] = useState(0);
 
   const [userToken, setUserToken] = useState(false);
   const [userİnfo, setUserİnfo] = useState(null);
@@ -67,8 +70,8 @@ const [myId, setMyId] = useState('myID boşşşş');
       await sendDataToDevice(device, serviceUUID, characteristicUUID, `<1:4:3>`);
       // await sendDataToDevice(device, serviceUUID, characteristicUUID, `<1:${cardNum}:4:3>`);
       console.log('Door open command sent');
-      console.log('kaRT NUMANRASI',kartNo);
-      
+      console.log('kaRT NUMANRASI', kartNo);
+
       showSuccess("kapı açma başarılı")
       const disconnectDevice2 = async () => {
         if (device) {
@@ -115,9 +118,20 @@ const [myId, setMyId] = useState('myID boşşşş');
 
       // const data = '<1:34625:4:3>';
       await sendDataToDevice(device, serviceUUID, characteristicUUID, sendData);
+
+      
+      
+      
+      
       console.log('Door open command sent');
       if (sendData == "<1:A>") {
         showSuccess("Cihaz Güncelleniyor lütfen 10 - 15 saniye bekleyiniz...")
+      }
+      if (
+        sendData == "<1:C>"
+      ) {
+        console.log("Gönderilen data beelii neyi sorguluyon ")
+
       }
       const disconnectDevice2 = async () => {
         if (device) {
@@ -317,7 +331,23 @@ const [myId, setMyId] = useState('myID boşşşş');
 
 
 
-
+  const veriOkuma = async (device, serviceUUID, characteristicUUID,kartSayisi) => {
+    console.log("veriOkuma içine girdi")
+    if(kartSayisi){
+      for (let index = 0; index < kartSayisi; index++) {
+        console.log("veriOkuma içine girdi for içinede girdi")
+          // Index'i dört haneli yapmak için padStart kullanımı
+          const formattedIndex = index.toString().padStart(4, '0');
+          console.log("formated İndex::>>>",formattedIndex)
+          
+          
+          await sendDataToDevice2(device, serviceUUID, characteristicUUID, `<1:P:${formattedIndex}>`);
+          
+        }
+        
+  }
+  console.log("Benzersiz sayılar kümesi1:", uniqueNumbers);
+  }
 
   // data gönderir ve gelen cevapları dinler
   const sendDataToDevice = async (device, serviceUUID, characteristicUUID, data) => {
@@ -327,7 +357,14 @@ const [myId, setMyId] = useState('myID boşşşş');
         characteristicUUID,
         Buffer.from(data).toString('base64')
       );
-      console.log("gönderilen komut::: >>>",data)
+      // const veriAktar = async (localData) => {
+      //   const characteristic = await device.writeCharacteristicWithResponseForService(
+      //     serviceUUID,
+      //     characteristicUUID,
+      //     Buffer.from(localData).toString('base64')
+      // );
+      // }
+      console.log("gönderilen komut::: >>>", data);
 
       device.monitorCharacteristicForService(
         serviceUUID,  // Servis UUID
@@ -338,10 +375,35 @@ const [myId, setMyId] = useState('myID boşşşş');
             return;
           }
           // Yanıt verisi burada
-          const response = characteristic.value;
-          console.log('Response:', Buffer.from(response, 'base64').toString('utf-8'));
+          const response = Buffer.from(characteristic.value, 'base64').toString('utf-8');
+
+          console.log('Response:', response);
+          if (data == "<1:C>") {
+            console.log("send data iç komutu belli");
+
+            if (response != "<1:C:0000>") {
+              console.log("cihazda kayıtlı kartlar mevcut");
+              showSuccess("cihazda kayıtlı kartlar mevcut");
+              console.log("cihazda kayıtlı kodu ==>> ", response);
+
+              // 4 haneli sayıyı ayıklayın
+              const match = response.match(/(\d{4})>/);
+              if (match) {
+                const number = parseInt(match[1], 10);
+                console.log("Ayıklanan sayı:", number);
+
+                // for döngüsü ile sayıyı dönün
+                veriOkuma(device, serviceUUID, characteristicUUID,number);
+                
+              }
+            } else {
+              console.log("cihazda kayıtlı kart yok");
+              showError("cihazda kayıtlı kart yok");
+            }
+          }
         }
       );
+     
 
     } catch (error) {
       console.error('Failed to send data:', error);
@@ -349,10 +411,29 @@ const [myId, setMyId] = useState('myID boşşşş');
   };
 
 
+  const disconnectDevice3 = async () => {
+    if (device) {
+      try {
+        // Geçici olarak erişilebilirlik kontrolü
+        if (bleManager.state !== 'destroyed') {
+          await bleManager.cancelDeviceConnection(myId);
+          console.log('Disconnected from device');
+          setConnectedDevice(null);
+        } else {
+          console.error('BleManager is destroyed and cannot disconnect');
+        }
+      } catch (count) {
+        console.log('bağlantı koptu', count);
+      }
+    }
+  };
+
+
+
 
 
   return (
-    <DeviceContext.Provider value={{myId, setMyId,kurulumState, setKurulumState,sendComment, sendDeleteCardData, sendCardData, kartNo, setKartNo, userİnfo, setUserİnfo, userToken, setUserToken, connectedDevice, setConnectedDevice, handleDoorOpen, sendDataToDevice, disconnectDevice, disconnectMessage, disconnectButtonVisible, setDisconnectButtonVisible, setDisconnectMessage, isButtonDisabled }}>
+    <DeviceContext.Provider value={{ myId, setMyId, kurulumState, setKurulumState, sendComment, sendDeleteCardData, sendCardData, kartNo, setKartNo, userİnfo, setUserİnfo, userToken, setUserToken, connectedDevice, setConnectedDevice, handleDoorOpen, sendDataToDevice, disconnectDevice, disconnectMessage, disconnectButtonVisible, setDisconnectButtonVisible, setDisconnectMessage, isButtonDisabled }}>
       {children}
     </DeviceContext.Provider>
   );

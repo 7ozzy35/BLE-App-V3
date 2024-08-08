@@ -1,62 +1,135 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { DeviceContext } from './Context/DevicesContext';
+import React, { useState, useEffect, useContext } from 'react';
+import { View, Text, FlatList, StyleSheet, PermissionsAndroid, Platform, TouchableOpacity } from 'react-native';
+import { BleManager } from 'react-native-ble-plx';
 import { Buffer } from 'buffer';
-import auth from '@react-native-firebase/auth';
-import firestore from '@react-native-firebase/firestore';
 
-const login = async () => {
-  console.log("autha erişildi");
-  auth()
-    .signInWithEmailAndPassword('7ozzy35@gmail.com', '123456')
-    .then(() => {
-      console.log('User account signed in!');
-    })
-    .catch(error => {
-      if (error.code === 'auth/email-already-in-use') {
-        console.log('That email address is already in use!');
-      }
+const bleManager = new BleManager();
 
-      if (error.code === 'auth/invalid-email') {
-        console.log('That email address is invalid!');
-      }
 
-      console.error(error);
-    });
-};
+import { DeviceContext } from './Context/DevicesContext';
+import { showSuccess } from './Component/helperFunctions';
 
-const Home = () => {
-  const [adSoyad, setAdSoyad] = useState('');
-  const [daireNo, setDaireNo] = useState('');
-  const [email, setEmail] = useState('');
-  const [kartNo, setKartNo] = useState('');
-  const [telefonNo, setTelefonNo] = useState('');
-  const [yetki, setYetki] = useState(false);
+const ScanAndConnect = ({ navigation }) => {
 
-  const { connectedDevice, deviceData, setDeviceData } = useContext(DeviceContext);
+  
+
+  const { connectedDevice, setConnectedDevice } = useContext(DeviceContext);
+
+
+  const [devices, setDevices] = useState([]);
+  const myId = "12:6C:14:38:F5:40";
 
   useEffect(() => {
-    const getDataFireStore = async () => {
-      try {
-        const userDoc = await firestore().collection('Users').doc("7zRkAweqitW62RO0Qkk9gI2beEl2").get();
-        if (userDoc.exists) {
-          const userData = userDoc.data();
-          setAdSoyad(userData["Ad Soyad"]);
-          setDaireNo(userData["Daire No"]);
-          setEmail(userData["Email"]);
-          setKartNo(userData["Kart No"]);
-          setTelefonNo(userData["Telefon No"]);
-          setYetki(userData["Yetki"]);
-        } else {
-          console.log('No such document!');
-        }
-      } catch (error) {
-        console.error('Error getting document:', error);
-      }
-    };
+    const firstFunc = async () => {
+      const requestPermissions = async () => {
+        if (Platform.OS === 'android' && Platform.Version >= 23) {
+          try {
+            const granted = await PermissionsAndroid.requestMultiple([
+              PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+              PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
+              PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
+            ]);
 
-    getDataFireStore();
+            if (
+              granted['android.permission.ACCESS_FINE_LOCATION'] === PermissionsAndroid.RESULTS.GRANTED &&
+              granted['android.permission.BLUETOOTH_SCAN'] === PermissionsAndroid.RESULTS.GRANTED &&
+              granted['android.permission.BLUETOOTH_CONNECT'] === PermissionsAndroid.RESULTS.GRANTED
+            ) {
+              console.log('Location and Bluetooth permissions granted');
+            } else {
+              console.log('Location and/or Bluetooth permissions denied');
+            }
+          } catch (err) {
+            console.warn(err);
+          }
+        }
+      };
+
+      await requestPermissions();
+      await disconnectDevice();
+
+    }
+
+    firstFunc();
+
+    return () => {
+      bleManager.destroy();
+    };
   }, []);
+  sentDataController =  async() => {
+    if (connectedDevice) {
+        sendDataToDevice(connectedDevice, '0000ffe0-0000-1000-8000-00805f9b34fb', '0000ffe1-0000-1000-8000-00805f9b34fb', '<1:4:1>');
+}
+  }
+
+  useEffect(() => {
+    const interval = setInterval( async() => {
+     
+      await scanDevices();
+      
+      await sentDataController();
+
+      await disconnectDevice();
+      
+      
+    }, 3000);
+    return () => clearInterval(interval)
+  })
+
+  const scanDevices = () => {
+    showSuccess("Tarama Başladı")
+    setDevices([]);
+    bleManager.startDeviceScan(null, null, (error, device) => {
+      
+      if (error) {
+        console.error("Scan error:", error.message, error.reason);
+        return;
+      }
+
+      setDevices((prevDevices) => {
+        if (!prevDevices.find(d => d.id === device.id)) {
+          console.log("sinyal gücü:", device.rssi)
+          
+          if (device.id === myId ) {
+            if(device.rssi > -40){
+              onConnect(device);
+            }
+            else{
+              if(connectedDevice){
+                disconnectDevice();
+              }
+              
+            }
+
+            
+          }
+          
+          return [...prevDevices, device];
+        }
+        return prevDevices;
+      });
+    });
+
+
+
+    setTimeout(() => {
+      bleManager.stopDeviceScan();
+    }, 3000);
+  };
+
+  const onConnect = async (device) => {
+    console.log("CONNECTED DEVICE:::", device);
+    try {
+      await bleManager.connectToDevice(device.id);
+      await device.discoverAllServicesAndCharacteristics();
+      console.log('Connected and services discovered');
+      await setConnectedDevice(device);
+
+
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const sendDataToDevice = async (device, serviceUUID, characteristicUUID, data) => {
     try {
@@ -67,62 +140,74 @@ const Home = () => {
       );
       console.log('Data sent:', characteristic);
 
+      // Veriyi gönderdikten sonra, cihazdan gelen yanıtı oku
       const response = await device.readCharacteristicForService(serviceUUID, characteristicUUID);
       const responseData = Buffer.from(response.value, 'base64').toString('ascii');
       console.log('Response data:', responseData);
       setDeviceData(responseData);
+
     } catch (error) {
       console.error('Failed to send data or read response:', error);
     }
   };
 
-  const sendata1 = () => {
-    sendDataToDevice(connectedDevice, '0000ffe0-0000-1000-8000-00805f9b34fb', '0000ffe1-0000-1000-8000-00805f9b34fb', '<1:4:1>');
-    console.log('Kapı açıldı');
+  const disconnectDevice = async () => {
+    if (connectedDevice) {
+      try {
+        // Geçici olarak erişilebilirlik kontrolü
+        if (bleManager.state !== 'destroyed') {
+          await bleManager.cancelDeviceConnection("12:6C:14:38:F5:40");
+          console.log('Disconnected from device');
+          setConnectedDevice(null);
+        } else {
+          console.error('BleManager is destroyed and cannot disconnect');
+        }
+      } catch (error) {
+        console.error('Failed to disconnect:', error);
+      }
+    }
   };
 
-  const sendata2 = () => {
-    sendDataToDevice(connectedDevice, '0000ffe0-0000-1000-8000-00805f9b34fb', '0000ffe1-0000-1000-8000-00805f9b34fb', '<1:6:1>');
-    console.log('Kapı kapandı');
-  };
-
-  const sendata3 = () => {
-    sendDataToDevice(connectedDevice, '0000ffe0-0000-1000-8000-00805f9b34fb', '0000ffe1-0000-1000-8000-00805f9b34fb', '<1:T>');
-    console.log('Kapı durumu alındı');
+  const calculateDistance = (rssi, txPower = -59, n = 2) => {
+    return Math.pow(10, (txPower - rssi) / (10 * n));
   };
 
   return (
     <View style={styles.container}>
-      <View style={{ flexDirection: "row" }}>
-        <Text style={styles.mainText}>Ad Soyad:</Text>
-        <Text style={styles.mainText}>{adSoyad}</Text>
-      </View>
-      <View style={{ flexDirection: "row" }}>
-        <Text style={styles.mainText}>Daire No:</Text>
-        <Text style={styles.mainText}>{daireNo}</Text>
-      </View>
-      <View style={{ flexDirection: "row" }}>
-        <Text style={styles.mainText}>Kart No:</Text>
-        <Text style={styles.mainText}>{kartNo}</Text>
-      </View>
-      <View style={{ flexDirection: "row" }}>
-        <Text style={styles.mainText}>Telefon:</Text>
-        <Text style={styles.mainText}>{telefonNo}</Text>
-      </View>
-      <View style={{ flexDirection: "row" }}>
-        <Text style={styles.mainText}>Yetki:</Text>
-        <Text style={styles.mainText}>{yetki ? 'Evet' : 'Hayır'}</Text>
-      </View>
-      <TouchableOpacity onPress={sendata2} style={styles.button}>
-        <View style={styles.buttonContent}>
-          <Text style={styles.text}>Kapı Kapat</Text>
-        </View>
+      <TouchableOpacity style={styles.disconnectButton} onPress={()=>{disconnectDevice(),navigation.goBack()}}>
+        <Text style={styles.buttonText}>Disconnect</Text>
       </TouchableOpacity>
-      <TouchableOpacity onPress={() => { console.log("KAPI DURUMU:.Ç>>", deviceData) }} style={styles.button}>
-        <View style={styles.buttonContent}>
-          <Text style={styles.text}>Kapı Durumu</Text>
-        </View>
+      <TouchableOpacity style={styles.scanButton} onPress={scanDevices}>
+        <Text style={styles.buttonText}>Scan for BLE Devices</Text>
       </TouchableOpacity>
+      <FlatList
+        data={devices}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+          <TouchableOpacity style={styles.device} onPress={() => onConnect(item)}>
+            <Text style={styles.deviceName}>Device Name: {item.name || 'Unnamed device'}</Text>
+            <Text style={styles.deviceId}>Device ID: {item.id}</Text>
+            {item.rssi && (
+              <>
+                <Text style={styles.deviceRssi}>RSSI: {item.rssi}</Text>
+                <Text style={styles.deviceDistance}>Estimated Distance: {calculateDistance(item.rssi).toFixed(2)} meters</Text>
+              </>
+            )}
+          </TouchableOpacity>
+        )}
+        contentContainerStyle={styles.deviceList}
+      />
+      {connectedDevice && (
+        <View style={styles.connectedDevice}>
+          <Text style={styles.connectedDeviceText}>Connected to: {connectedDevice.name || 'Unnamed device'}</Text>
+          <TouchableOpacity style={styles.sendButton} onPress={() => { navigation.navigate("HomePage") }}>
+            <Text style={styles.buttonText}>Send Data</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.disconnectButton} onPress={disconnectDevice}>
+            <Text style={styles.buttonText}>Disconnect</Text>
+          </TouchableOpacity>
+        </View>
+      )}
     </View>
   );
 };
@@ -130,39 +215,75 @@ const Home = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
+    backgroundColor: '#f0f4f7',
+    padding: 16,
+  },
+  scanButton: {
+    backgroundColor: '#007bff',
+    padding: 16,
+    borderRadius: 8,
+    marginVertical: 16,
     alignItems: 'center',
-    backgroundColor: '#f5fcff',
   },
-  mainText: {
-    color: "blue",
-    margin: 4
-  },
-  button: {
-    width: 250,
-    height: 80,
-    borderRadius: 20,
-    backgroundColor: 'lightgreen',
-    justifyContent: 'center',
+  sendButton: {
+    backgroundColor: '#28a745',
+    padding: 16,
+    borderRadius: 8,
+    marginTop: 16,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.8,
-    shadowRadius: 2,
-    elevation: 5,
-    marginVertical: 10,
   },
-  buttonContent: {
-    justifyContent: 'center',
+  disconnectButton: {
+    backgroundColor: '#dc3545',
+    padding: 16,
+    borderRadius: 8,
+    marginTop: 16,
     alignItems: 'center',
-    flex: 1,
   },
-  text: {
-    color: '#fff',
-    fontSize: 18,
+  buttonText: {
+    color: '#ffffff',
+    fontSize: 16,
     fontWeight: 'bold',
-    textAlign: 'center',
+  },
+  deviceList: {
+    alignItems: 'stretch',
+  },
+  device: {
+    backgroundColor: '#ffffff',
+    padding: 16,
+    marginVertical: 8,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#dddddd',
+  },
+  deviceName: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: "green"
+  },
+  deviceId: {
+    fontSize: 14,
+    color: '#555555',
+  },
+  deviceRssi: {
+    fontSize: 14,
+    color: '#555555',
+  },
+  deviceDistance: {
+    fontSize: 14,
+    color: '#555555',
+  },
+  connectedDevice: {
+    backgroundColor: '#e2f7e1',
+    padding: 16,
+    borderRadius: 8,
+    marginTop: 20,
+    alignItems: 'center',
+  },
+  connectedDeviceText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#28a745',
   },
 });
 
-export default Home;
+export default ScanAndConnect;
