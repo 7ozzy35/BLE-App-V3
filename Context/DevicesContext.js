@@ -36,25 +36,7 @@ export const DeviceProvider = ({ children }) => {
     }, 1000);
   };
 
-  const disconnectDevice = async (manual = true) => {
-    if (connectedDevice) {
-      try {
-        if (bleManager.state !== 'destroyed') {
-          await bleManager.cancelDeviceConnection(connectedDevice.id);
-          console.log('Disconnected from device');
-          setConnectedDevice(null);
-          if (manual) {
-            setDisconnectMessage('Kapı bağlantısı manuel olarak kesildi');
-          }
-          setDisconnectButtonVisible(false);
-        } else {
-          console.error('BleManager is destroyed and cannot disconnect');
-        }
-      } catch (error) {
-        console.error('Failed to disconnect:', error);
-      }
-    }
-  };
+
 
   const handleDoorOpen = useCallback(async (cardNum) => {
     setIsButtonDisabled(true);
@@ -139,7 +121,9 @@ export const DeviceProvider = ({ children }) => {
             // Geçici olarak erişilebilirlik kontrolü
             if (bleManager.state !== 'destroyed') {
               await bleManager.cancelDeviceConnection(myId);
-              console.log('Disconnected from device');
+              console.log('Disconnected from device sendComment');
+              console.log("Benzersiz sayılar kümesi2:", uniqueNumbers);
+              
               setConnectedDevice(null);
             } else {
               console.error('BleManager is destroyed and cannot disconnect');
@@ -297,7 +281,7 @@ export const DeviceProvider = ({ children }) => {
             // Geçici olarak erişilebilirlik kontrolü
             if (bleManager.state !== 'destroyed') {
               await bleManager.cancelDeviceConnection(myId);
-              console.log('Disconnected from device');
+              console.log('Disconnected from deviceee');
               setConnectedDevice(null);
             } else {
               console.error('BleManager is destroyed and cannot disconnect');
@@ -346,7 +330,14 @@ export const DeviceProvider = ({ children }) => {
         }
         
   }
-  console.log("Benzersiz sayılar kümesi1:", uniqueNumbers);
+  
+  }
+  const veriYazdır = async () => {
+    console.log("veriYazdır içine girdi")
+    console.log("Benzersiz sayılar kümesi222:", uniqueNumbers);
+    
+    
+  
   }
 
   // data gönderir ve gelen cevapları dinler
@@ -370,6 +361,7 @@ export const DeviceProvider = ({ children }) => {
         serviceUUID,  // Servis UUID
         characteristicUUID,  // Karakteristik UUID
         (error, characteristic) => {
+          
           if (error) {
             console.log('Error:', error.message);
             return;
@@ -409,31 +401,56 @@ export const DeviceProvider = ({ children }) => {
       console.error('Failed to send data:', error);
     }
   };
+  const sendDataToDevice2 = async (device, serviceUUID, characteristicUUID, data) => {
+    
 
+    try {
+        const characteristic = await device.writeCharacteristicWithResponseForService(
+            serviceUUID,
+            characteristicUUID,
+            Buffer.from(data).toString('base64')
+        );
+        console.log("gönderilen komut::: >>>", data);
 
-  const disconnectDevice3 = async () => {
-    if (device) {
-      try {
-        // Geçici olarak erişilebilirlik kontrolü
-        if (bleManager.state !== 'destroyed') {
-          await bleManager.cancelDeviceConnection(myId);
-          console.log('Disconnected from device');
-          setConnectedDevice(null);
-        } else {
-          console.error('BleManager is destroyed and cannot disconnect');
-        }
-      } catch (count) {
-        console.log('bağlantı koptu', count);
-      }
+        device.monitorCharacteristicForService(
+            serviceUUID,  // Servis UUID
+            characteristicUUID,  // Karakteristik UUID
+            (error, characteristic) => {
+                if (error) {
+                    console.log('Error2:', error.message);
+                    return;
+                }
+                // Yanıt verisi burada
+                const response = Buffer.from(characteristic.value, 'base64').toString('utf-8');
+
+                console.log('Response:', response);
+
+                // RegExp ile ortadaki 5 haneli sayıyı ayıklama
+                const match = response.match(/<1:P:(\d{5}):\d{3}>/);
+                console.log("match nedir 0=>>>",match)
+                if (match) {
+                    const number = match[1];
+                    uniqueNumbers.add(number);  // Küme içerisine sayıyı ekleme
+                    console.log("Eklenen sayı:", number);
+                }
+              
+
+                
+            }
+        );
+
+    } catch (error) {
+        console.error('Failed to send data:', error);
     }
-  };
+};
 
+ 
 
 
 
 
   return (
-    <DeviceContext.Provider value={{ myId, setMyId, kurulumState, setKurulumState, sendComment, sendDeleteCardData, sendCardData, kartNo, setKartNo, userİnfo, setUserİnfo, userToken, setUserToken, connectedDevice, setConnectedDevice, handleDoorOpen, sendDataToDevice, disconnectDevice, disconnectMessage, disconnectButtonVisible, setDisconnectButtonVisible, setDisconnectMessage, isButtonDisabled }}>
+    <DeviceContext.Provider value={{ veriYazdır,myId, setMyId, kurulumState, setKurulumState, sendComment, sendDeleteCardData, sendCardData, kartNo, setKartNo, userİnfo, setUserİnfo, userToken, setUserToken, connectedDevice, setConnectedDevice, handleDoorOpen, sendDataToDevice, disconnectMessage, disconnectButtonVisible, setDisconnectButtonVisible, setDisconnectMessage, isButtonDisabled }}>
       {children}
     </DeviceContext.Provider>
   );
