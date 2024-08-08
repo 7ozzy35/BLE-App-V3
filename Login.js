@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState,useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 import { DeviceContext } from './Context/DevicesContext';
@@ -11,15 +11,27 @@ const LoginScreen = ({ navigation }) => {
   const [error, setError] = useState('');
   const [kartNoLocal, setKartNoLocal] = useState(null)
 
+  const LoginControl =  async () => {
+    const gelenDeger =await AsyncStorage.getItem("my-CardNumber");
+    if(gelenDeger){
+      handleLogin(gelenDeger)
+    }
+  }
 
-  const handleLogin = async () => {
+useEffect(() => {
+  LoginControl()
+}, [])
+
+  const handleLogin = async (kartNo1) => {
     setError('');
     const gelenDeger = await AsyncStorage.getItem("my-key");
+    await AsyncStorage.setItem("my-CardNumber",kartNo);
     try {
+      
       console.log("my Id nedir acaba ==>>",gelenDeger)
       const userSnapshot = await firestore()
         .collection(gelenDeger)
-        .where('Kart No', '==', kartNo)
+        .where('Kart No', '==', kartNo1)
         .limit(1)
         .get();
 
@@ -58,7 +70,7 @@ const LoginScreen = ({ navigation }) => {
           onChangeText={setKartNo}
           keyboardType="numeric"
         />
-        <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
+        <TouchableOpacity style={styles.loginButton} onPress={()=>{handleLogin(kartNo)}}>
           <Text style={styles.buttonText}>Giriş Yap</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.loginButton} onPress={() => { setKurulumState(false) }}>

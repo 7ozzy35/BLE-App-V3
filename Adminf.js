@@ -23,6 +23,10 @@ const AdminScreen = ({ navigation }) => {
 
   }, [])
 
+  const CardSil =  async () => {
+    await AsyncStorage.removeItem("my-CardNumber");
+  }
+
   return (
     <View style={styles.container}>
       <View style={styles.headerContainer}>
@@ -30,7 +34,7 @@ const AdminScreen = ({ navigation }) => {
         <TouchableOpacity style={styles.iconButton} onPress={() => handlePress('Ayarlar')}>
           <Image source={require('./assets/gear_icon.png')} style={styles.icon} />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.iconButton} onPress={() => { navigation.replace("Login"),setUserToken(false) }}>
+        <TouchableOpacity style={styles.iconButton} onPress={() => { navigation.replace("Login"),setUserToken(false),CardSil() }}>
         <Icon name={"sign-out"} size={24} color="gray" />
         </TouchableOpacity>
       </View>
