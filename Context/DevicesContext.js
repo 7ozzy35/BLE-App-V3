@@ -6,6 +6,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { showError, showSuccess } from "../Component/helperFunctions";
 import { Console } from 'console';
 import { checkAndAddDocument } from '../FirestoreService';
+import firestore from '@react-native-firebase/firestore';
 
 export const DeviceContext = createContext();
 let bleManager = new BleManager();
@@ -18,15 +19,11 @@ export const DeviceProvider = ({ children }) => {
   const [kurulumState, setKurulumState] = useState(true);
   const [kartNo, setKartNo] = useState('');
   const [kartSayisi, setKartSayisi] = useState(0);
-
   const [userToken, setUserToken] = useState(false);
   const [userİnfo, setUserİnfo] = useState(null);
-
   const [connectedDevice, setConnectedDevice] = useState(null);
   const [disconnectMessage, setDisconnectMessage] = useState('');
   const [disconnectButtonVisible, setDisconnectButtonVisible] = useState(false);
-  // const myId = "12:6C:14:38:54:50"; 
-  // Replace with your device ID
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
 
   const resetBleManager = () => {
@@ -36,8 +33,6 @@ export const DeviceProvider = ({ children }) => {
       console.log('BleManager reset');
     }, 1000);
   };
-
-
 
   const handleDoorOpen = useCallback(async (cardNum) => {
     setIsButtonDisabled(true);
@@ -49,17 +44,14 @@ export const DeviceProvider = ({ children }) => {
       setDisconnectMessage('');
       setDisconnectButtonVisible(true);
 
-      // const data = '<1:34625:4:3>';
       await sendDataToDevice(device, serviceUUID, characteristicUUID, `<1:4:3>`);
-      // await sendDataToDevice(device, serviceUUID, characteristicUUID, `<1:${cardNum}:4:3>`);
       console.log('Door open command sent');
-      console.log('kaRT NUMANRASI', kartNo);
+      console.log('Kart Numarası', kartNo);
 
       showSuccess("kapı açma başarılı")
       const disconnectDevice2 = async () => {
         if (device) {
           try {
-            // Geçici olarak erişilebilirlik kontrolü
             if (bleManager.state !== 'destroyed') {
               await bleManager.cancelDeviceConnection(myId);
               console.log('Disconnected from device');
@@ -86,9 +78,10 @@ export const DeviceProvider = ({ children }) => {
       }
     }
     setTimeout(() => {
-      setIsButtonDisabled(false);
+      setIsButtonDisabled(false); 
     }, 2500);
   }, [myId]);
+
   const sendComment = useCallback(async (sendData) => {
     setIsButtonDisabled(true);
     try {
@@ -99,27 +92,17 @@ export const DeviceProvider = ({ children }) => {
       setDisconnectMessage('');
       setDisconnectButtonVisible(true);
 
-      // const data = '<1:34625:4:3>';
       await sendDataToDevice(device, serviceUUID, characteristicUUID, sendData);
-
-      
-      
-      
-      
       console.log('Door open command sent');
-      if (sendData == "<1:A>") {
-        showSuccess("Cihaz Güncelleniyor lütfen 10 - 15 saniye bekleyiniz...")
+      if (sendData === "<1:A>") {
+        showSuccess("Cihaz Güncelleniyor lütfen 10 - 15 saniye bekleyiniz...");
       }
-      if (
-        sendData == "<1:C>"
-      ) {
-        console.log("Gönderilen data beelii neyi sorguluyon ")
-
+      if (sendData === "<1:C>") {
+        console.log("Gönderilen data belli neyi sorguluyon ");
       }
       const disconnectDevice2 = async () => {
         if (device) {
           try {
-            // Geçici olarak erişilebilirlik kontrolü
             if (bleManager.state !== 'destroyed') {
               await bleManager.cancelDeviceConnection(myId);
               console.log('Disconnected from device sendComment');
@@ -218,7 +201,6 @@ export const DeviceProvider = ({ children }) => {
     }, 2500);
   }, [myId]);
 
-
   const sendCardData = useCallback(async (usersList) => {
     setIsButtonDisabled(true);
     try {
@@ -229,45 +211,15 @@ export const DeviceProvider = ({ children }) => {
       setDisconnectMessage('');
       setDisconnectButtonVisible(true);
 
-
-      // const usersList = [
-      //   "34621",
-      //   "34622",
-      //   "34623",
-      //   "34624",
-      //   "34625",
-      //   "34646",
-      //   "34647",
-      //   "34648",
-      //   "34649",
-      //   "34650",
-      //   "34651",
-      //   "34652",
-
-
-
-
-      // ]
-
-
       await usersList.forEach(element => {
         sendDataToDevice(device, serviceUUID, characteristicUUID, `<1:8:${element["Kart No"]}:001>`);
       });
-
-
-
-      // const data = '<1:34625:4:3>';
-
-
-
-
 
       console.log('Add Card command sent');
       showSuccess("Kart Aktarma başarılı")
       const disconnectDevice2 = async () => {
         if (device) {
           try {
-            // Geçici olarak erişilebilirlik kontrolü
             if (bleManager.state !== 'destroyed') {
               await bleManager.cancelDeviceConnection(myId);
               console.log('Disconnected from device');
@@ -297,6 +249,7 @@ export const DeviceProvider = ({ children }) => {
       setIsButtonDisabled(false);
     }, 2500);
   }, [myId]);
+
   const sendDeleteCardData = useCallback(async (usersList) => {
     setIsButtonDisabled(true);
     try {
@@ -307,45 +260,14 @@ export const DeviceProvider = ({ children }) => {
       setDisconnectMessage('');
       setDisconnectButtonVisible(true);
 
-
-      // const usersList = [
-      //   "34621",
-      //   "34622",
-      //   "34623",
-      //   "34624",
-      //   "34625",
-      //   "34646",
-      //   "34647",
-      //   "34648",
-      //   "34649",
-      //   "34650",
-      //   "34651",
-      //   "34652",
-
-
-
-
-      // ]
-
-
       await usersList.forEach(element => {
         sendDataToDevice(device, serviceUUID, characteristicUUID, `<1:9:${element["Kart No"]}>`);
       });
 
-
-
-      // const data = '<1:34625:4:3>';
-
-
-
-
-
       console.log('Delete Card command sent');
-
       const disconnectDevice2 = async () => {
         if (device) {
           try {
-            // Geçici olarak erişilebilirlik kontrolü
             if (bleManager.state !== 'destroyed') {
               await bleManager.cancelDeviceConnection(myId);
               console.log('Disconnected from deviceee');
@@ -376,14 +298,8 @@ export const DeviceProvider = ({ children }) => {
     }, 2500);
   }, [myId]);
 
-
-
-
-
-
-
-  const veriOkuma = async (device, serviceUUID, characteristicUUID,kartSayisi) => {
-    console.log("veriOkuma içine girdi")
+  const veriOkuma = async (device, serviceUUID, characteristicUUID, kartSayisi) => {
+    console.log("veriOkuma içine girdi");
     if(kartSayisi){
       for (let index = 0; index < kartSayisi; index++) {
         console.log("veriOkuma içine girdi for içinede girdi")
@@ -399,7 +315,7 @@ export const DeviceProvider = ({ children }) => {
   }
   
   }
-  const veriYazdır = async () => {
+  const DataAdd = async () => {
     console.log("veri yazdır çalışıyor")
     
     const gelenDeger = await AsyncStorage.getItem("my-key");
@@ -478,56 +394,69 @@ export const DeviceProvider = ({ children }) => {
       console.error('Failed to send data:', error);
     }
   };
-  const sendDataToDevice2 = async (device, serviceUUID, characteristicUUID, data) => {
-    
 
-    try {
-        const characteristic = await device.writeCharacteristicWithResponseForService(
-            serviceUUID,
-            characteristicUUID,
-            Buffer.from(data).toString('base64')
-        );
-        console.log("gönderilen komut::: >>>", data);
+  const veriYazdır = async () => {
+    console.log("Veri yazdırma işlemi başladı");
+    console.log("Benzersiz sayılar kümesi:", uniqueNumbers);
 
-        device.monitorCharacteristicForService(
-            serviceUUID,  // Servis UUID
-            characteristicUUID,  // Karakteristik UUID
-            (error, characteristic) => {
-                if (error) {
-                    console.log('Error2:', error.message);
-                    return;
-                }
-                // Yanıt verisi burada
-                const response = Buffer.from(characteristic.value, 'base64').toString('utf-8');
+    const db = firestore();
+    const collectionName = myId;
 
-                console.log('Response:', response);
+    for (const cardNumber of uniqueNumbers) {
+      const querySnapshot = await db.collection(collectionName)
+        .where("Kart No", "==", cardNumber)
+        .get();
 
-                // RegExp ile ortadaki 5 haneli sayıyı ayıklama
-                const match = response.match(/<1:P:(\d{5}):\d{3}>/);
-                console.log("match nedir 0=>>>",match)
-                if (match) {
-                    const number = match[1];
-                    uniqueNumbers.add(number);  // Küme içerisine sayıyı ekleme
-                    console.log("Eklenen sayı:", number);
-                }
-              
-
-                
-            }
-        );
-
-    } catch (error) {
-        console.error('Failed to send data:', error);
+      if (querySnapshot.empty) {
+        await db.collection(collectionName).add({
+          "Kart No": cardNumber,
+          "Pay": true,
+          "Onay": true,
+          "Yetki": false,
+          "Daire Numarası": ""
+        });
+        console.log(`Yeni kart kaydedildi: ${cardNumber}`);
+      } else {
+        console.log(`Kart zaten mevcut: ${cardNumber}`);
+      }
     }
-};
 
- 
+    showSuccess("Kartlar veritabanına başarıyla kaydedildi.");
+  };
 
+  
 
+  const sendDataToDevice2 = async (device, serviceUUID, characteristicUUID, message) => {
+    const service = await device.services();
+    const serviceIndex = service.findIndex(s => s.uuid === serviceUUID);
+    if (serviceIndex === -1) {
+      console.error('Service not found:', serviceUUID);
+      return;
+    }
 
+    const characteristic = await service[serviceIndex].characteristics();
+    const characteristicIndex = characteristic.findIndex(c => c.uuid === characteristicUUID);
+    if (characteristicIndex === -1) {
+      console.error('Characteristic not found:', characteristicUUID);
+      return;
+    }
+
+    const buffer = Buffer.from(message, 'utf-8');
+    await device.writeCharacteristicWithResponseForService(serviceUUID, characteristicUUID, buffer.toString('base64'));
+    console.log('Data sent:', message);
+    
+    if (message) {
+      const base64Value = await device.readCharacteristicForService(serviceUUID, characteristicUUID);
+      const bufferValue = Buffer.from(base64Value.value, 'base64');
+      const decodedValue = bufferValue.toString('utf-8');
+      const parsedValue = decodedValue.slice(4, 12);
+      uniqueNumbers.add(parsedValue);
+      console.log("Decoded Value:", parsedValue);
+    }
+  };
 
   return (
-    <DeviceContext.Provider value={{ veriYazdır,sendDevicesCard,myId, setMyId, kurulumState, setKurulumState, sendComment, sendDeleteCardData, sendCardData, kartNo, setKartNo, userİnfo, setUserİnfo, userToken, setUserToken, connectedDevice, setConnectedDevice, handleDoorOpen, sendDataToDevice, disconnectMessage, disconnectButtonVisible, setDisconnectButtonVisible, setDisconnectMessage, isButtonDisabled }}>
+    <DeviceContext.Provider value={{ DataAdd,veriYazdır,sendDevicesCard,myId, setMyId, kurulumState, setKurulumState, sendComment, sendDeleteCardData, sendCardData, kartNo, setKartNo, userİnfo, setUserİnfo, userToken, setUserToken, connectedDevice, setConnectedDevice, handleDoorOpen, sendDataToDevice, disconnectMessage, disconnectButtonVisible, setDisconnectButtonVisible, setDisconnectMessage, isButtonDisabled }}>
       {children}
     </DeviceContext.Provider>
   );
