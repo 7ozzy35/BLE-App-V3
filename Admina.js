@@ -131,8 +131,8 @@ const App = ({ navigation }) => {
 
     try {
       const usersSnapshot = await firestore()
-        .collection()
-        .where('Daire No', '==', searchText)
+        .collection(myId)
+        .where('Kart No', '==', searchText)
         .get();
 
       const filtered = usersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -167,7 +167,7 @@ const App = ({ navigation }) => {
           style={styles.searchInput}
           value={searchText}
           onChangeText={setSearchText}
-          placeholder="Daire Numarası girin"
+          placeholder="Kart Numarası girin"
           placeholderTextColor={"black"}
           keyboardType='numeric'
         />
