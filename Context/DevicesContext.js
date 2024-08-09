@@ -2,16 +2,17 @@ import React, { useState, createContext, useCallback } from 'react';
 import { BleManager } from 'react-native-ble-plx';
 import { Buffer } from 'buffer';
 import { OpenDoorComment, characteristicUUID, serviceUUID } from '../Component/DeviceInfo'
-
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { showError, showSuccess } from "../Component/helperFunctions";
 import { Console } from 'console';
+import { checkAndAddDocument } from '../FirestoreService';
 
 export const DeviceContext = createContext();
 let bleManager = new BleManager();
-
+const uniqueNumbers = new Set(); 
 export const DeviceProvider = ({ children }) => {
 
-  const uniqueNumbers = new Set();  // Benzersiz sayılar için küme
+   // Benzersiz sayılar için küme
 
   const [myId, setMyId] = useState('myID boşşşş');
   const [kurulumState, setKurulumState] = useState(true);
@@ -123,6 +124,72 @@ export const DeviceProvider = ({ children }) => {
               await bleManager.cancelDeviceConnection(myId);
               console.log('Disconnected from device sendComment');
               console.log("Benzersiz sayılar kümesi2:", uniqueNumbers);
+              console.log("Benzersiz sayılar kümesi2:", uniqueNumbers.size);
+              
+              setConnectedDevice(null);
+            } else {
+              console.error('BleManager is destroyed and cannot disconnect');
+            }
+          } catch (count) {
+            console.log('bağlantı koptu', count);
+          }
+        }
+      };
+
+      const autoDisconnectTimeout = setTimeout(async () => {
+        await disconnectDevice2();
+      }, 5000);
+
+      device.autoDisconnectTimeout = autoDisconnectTimeout;
+    } catch (error) {
+      console.log('Failed to open door:', error);
+      if (error.message.includes('BleManager was destroyed')) {
+        console.log("BLE Manager destroyed, resetting...");
+        resetBleManager();
+      }
+    }
+    setTimeout(() => {
+      setIsButtonDisabled(false);
+    }, 2500);
+  }, [myId]);
+  const sendDevicesCard = useCallback(async (sendData) => {
+    setIsButtonDisabled(true);
+    try {
+      const device = await bleManager.connectToDevice(myId);
+      await device.discoverAllServicesAndCharacteristics();
+      console.log("Device connected:", device);
+      setConnectedDevice(device);
+      setDisconnectMessage('');
+      setDisconnectButtonVisible(true);
+
+      // const data = '<1:34625:4:3>';
+      await sendDataToDevice(device, serviceUUID, characteristicUUID, sendData);
+
+      
+      
+      
+      
+      console.log('Door open command sent');
+      if (sendData == "<1:A>") {
+        showSuccess("Cihaz Güncelleniyor lütfen 10 - 15 saniye bekleyiniz...")
+      }
+      if (
+        sendData == "<1:C>"
+      ) {
+        console.log("Gönderilen data beelii neyi sorguluyon ")
+
+      }
+      const disconnectDevice2 = async () => {
+        if (device) {
+          try {
+            // Geçici olarak erişilebilirlik kontrolü
+            if (bleManager.state !== 'destroyed') {
+              await bleManager.cancelDeviceConnection(myId);
+              console.log('Disconnected from device sendComment');
+              console.log("Benzersiz sayılar kümesi2:", uniqueNumbers);
+              console.log("Benzersiz sayılar kümesi2:", uniqueNumbers.size);
+             
+
               
               setConnectedDevice(null);
             } else {
@@ -333,8 +400,18 @@ export const DeviceProvider = ({ children }) => {
   
   }
   const veriYazdır = async () => {
-    console.log("veriYazdır içine girdi")
-    console.log("Benzersiz sayılar kümesi222:", uniqueNumbers);
+    console.log("veri yazdır çalışıyor")
+    
+    const gelenDeger = await AsyncStorage.getItem("my-key");
+    console.log("gelen deger ",gelenDeger)
+              console.log("BEnzersiz SEt",uniqueNumbers)
+              
+
+              for (const number of uniqueNumbers) {
+                console.log("İşlenen sayı:", number);
+                const result = await checkAndAddDocument(gelenDeger, number);
+               
+            }
     
     
   
@@ -450,7 +527,7 @@ export const DeviceProvider = ({ children }) => {
 
 
   return (
-    <DeviceContext.Provider value={{ veriYazdır,myId, setMyId, kurulumState, setKurulumState, sendComment, sendDeleteCardData, sendCardData, kartNo, setKartNo, userİnfo, setUserİnfo, userToken, setUserToken, connectedDevice, setConnectedDevice, handleDoorOpen, sendDataToDevice, disconnectMessage, disconnectButtonVisible, setDisconnectButtonVisible, setDisconnectMessage, isButtonDisabled }}>
+    <DeviceContext.Provider value={{ veriYazdır,sendDevicesCard,myId, setMyId, kurulumState, setKurulumState, sendComment, sendDeleteCardData, sendCardData, kartNo, setKartNo, userİnfo, setUserİnfo, userToken, setUserToken, connectedDevice, setConnectedDevice, handleDoorOpen, sendDataToDevice, disconnectMessage, disconnectButtonVisible, setDisconnectButtonVisible, setDisconnectMessage, isButtonDisabled }}>
       {children}
     </DeviceContext.Provider>
   );

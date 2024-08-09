@@ -5,7 +5,7 @@ import firestore from '@react-native-firebase/firestore';
 import { showSuccess } from './Component/helperFunctions';
 
 const App = ({navigation}) => {
-  const { myId,sendComment,sendDeleteCardData,sendCardData,setUserToken,handleDoorOpen,isButtonDisabled } = useContext(DeviceContext);
+  const { veriYazdır,sendDevicesCard,myId,sendComment,sendDeleteCardData,sendCardData,setUserToken,handleDoorOpen,isButtonDisabled } = useContext(DeviceContext);
 
     const [users, setUsers] = useState([]);
 
@@ -50,7 +50,13 @@ const App = ({navigation}) => {
         </View>
       </TouchableNativeFeedback>
       <TouchableNativeFeedback
-        onPress={()=>{sendComment("<1:C>")}}
+        onPress={()=>{
+         sendDevicesCard("<1:C>")
+         setTimeout(async () => {
+          // Kart verilerini göndermek için kullanıcı listesini döngüye al
+          veriYazdır();
+        }, 7000);
+        }}
         background={TouchableNativeFeedback.Ripple('#FFBF78', true,-20)}
         disabled={isButtonDisabled}
       >
