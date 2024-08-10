@@ -16,6 +16,7 @@ const checkAndAddDocument = async (collectionName, cardNo) => {
         'Kart No': cardNo,
         'Onay': true,
         'Pay': true,
+        'DeleteItem': false,        
         
         'Yetki': isCollectionEmpty ? true : false,
       });

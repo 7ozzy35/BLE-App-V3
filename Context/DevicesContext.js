@@ -4,7 +4,7 @@ import { Buffer } from 'buffer';
 import { OpenDoorComment, characteristicUUID, serviceUUID } from '../Component/DeviceInfo'
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { showError, showSuccess } from "../Component/helperFunctions";
-import { Console } from 'console';
+
 import { checkAndAddDocument } from '../FirestoreService';
 import firestore from '@react-native-firebase/firestore';
 
@@ -253,6 +253,28 @@ export const DeviceProvider = ({ children }) => {
   const sendDeleteCardData = useCallback(async (usersList) => {
     setIsButtonDisabled(true);
     try {
+
+      const handleDeleteUser = async (userID) => {
+       
+          
+    
+          try {
+            await firestore().collection(myId).doc(userID).delete();
+            const updatedUsers = users.filter((_, i) => i !== editIndex);
+            setUsers(updatedUsers);
+            setFilteredUsers(updatedUsers);
+            setName('');
+            setSurname('');
+            setCardNumber('');
+            setApartmentNumber('');
+            setEditIndex(null);
+            setModalVisible(false);
+          } catch (error) {
+            console.error('Error deleting user: ', error);
+          }
+        
+      };
+
       const device = await bleManager.connectToDevice(myId);
       await device.discoverAllServicesAndCharacteristics();
       console.log("Device connected:", device);
@@ -261,7 +283,11 @@ export const DeviceProvider = ({ children }) => {
       setDisconnectButtonVisible(true);
 
       await usersList.forEach(element => {
-        sendDataToDevice(device, serviceUUID, characteristicUUID, `<1:9:${element["Kart No"]}>`);
+        if (element["DeleteItem"]) {
+           sendDataToDevice(device, serviceUUID, characteristicUUID, `<1:9:${element["Kart No"]}>`);
+        handleDeleteUser(element["id"])
+        }
+       
       });
 
       console.log('Delete Card command sent');
