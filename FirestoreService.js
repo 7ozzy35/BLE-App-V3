@@ -25,13 +25,11 @@ const checkAndAddOrUpdateDocument = async (collectionName, cardNo) => {
       const documentRef = querySnapshot.docs[0].ref;
       await documentRef.update({
         'Onay': true,
-<<<<<<< HEAD
-=======
+
         'Pay': true,
         'DeleteItem': false,        
         
         'Yetki': isCollectionEmpty ? true : false,
->>>>>>> 46f37d31c0c63fe68f9b9d08d8804509ce41a343
       });
       return 'Kart Numarası kaydedildi artık giriş yapabilirsin';
     }
