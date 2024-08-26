@@ -94,15 +94,46 @@ const App = ({ navigation }) => {
     }
   };
 
+  // const handleDeleteUser = async () => {
+  //   if (editIndex !== null) {
+  //     const user = users[editIndex];
+
+  //     try {
+  //       await firestore().collection(myId).doc(user.id).delete();
+  //       const updatedUsers = users.filter((_, i) => i !== editIndex);
+  //       setUsers(updatedUsers);
+  //       setFilteredUsers(updatedUsers);
+  //       setName('');
+  //       setSurname('');
+  //       setCardNumber('');
+  //       setApartmentNumber('');
+  //       setEditIndex(null);
+  //       setModalVisible(false);
+  //     } catch (error) {
+  //       console.error('Error deleting user: ', error);
+  //     }
+  //   }
+  // };
+
   const handleDeleteUser = async () => {
     if (editIndex !== null) {
       const user = users[editIndex];
-
+  
       try {
-        await firestore().collection(myId).doc(user.id).delete();
-        const updatedUsers = users.filter((_, i) => i !== editIndex);
+        // User'ın deleteItem özelliğini true olarak güncelle
+        await firestore()
+          .collection(myId)
+          .doc(user.id)
+          .update({ DeleteItem: true });
+  
+        // Ekrandaki kullanıcı listesini güncelle
+        const updatedUsers = users.map((u, i) =>
+          i === editIndex ? { ...u, DeleteItem: true } : u
+        );
         setUsers(updatedUsers);
         setFilteredUsers(updatedUsers);
+  
+        // Input alanlarını temizle ve modalı kapat
         setName('');
         setSurname('');
         setCardNumber('');
@@ -110,11 +141,10 @@ const App = ({ navigation }) => {
         setEditIndex(null);
         setModalVisible(false);
       } catch (error) {
-        console.error('Error deleting user: ', error);
+        console.error('Error updating user: ', error);
       }
     }
   };
-
   const confirmDeleteUser = () => {
     setIsDeleteModalVisible(true);
   };
