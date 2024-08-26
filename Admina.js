@@ -7,7 +7,7 @@ import { DeviceContext } from './Context/DevicesContext';
 const App = ({ navigation }) => {
 
   const {  myId,setMyId,kartNo, setKartNo,setUserToken,handleDoorOpen,isButtonDisabled } = useContext(DeviceContext);
-
+  
 
   const [name, setName] = useState('');
   const [surname, setSurname] = useState('');
@@ -274,7 +274,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#F8F4E1',
+    backgroundColor: '#F0F3FF',
   },
   headerContainer: {
     flexDirection: 'row',
@@ -301,7 +301,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   button: {
-    backgroundColor: '#2E236C',
+    backgroundColor: '#211951',
     padding: 15,
     borderRadius: 8,
     alignItems: 'center',
@@ -331,7 +331,7 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   searchButton: {
-    backgroundColor: '#2E236C',
+    backgroundColor: '#211951',
     padding: 15,
     borderRadius: 8,
     alignItems: 'center',

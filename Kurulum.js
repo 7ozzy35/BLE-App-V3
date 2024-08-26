@@ -105,6 +105,7 @@ const Kurulum = ({ navigation }) => {
         <Text style={styles.modalText}>Cihaz Adı: {selectedDevice.name || 'İsimsiz cihaz'}</Text>
         
         <Text style={styles.modalText}>CİHAZ DURUMU = {selectedDevice.isConnectable ? 'AÇIK' : 'KAPALI'}</Text>
+        <Text style={styles.modalText}>CİHAZ İD = {selectedDevice.id}</Text>
         <TouchableOpacity style={styles.modalButton} onPress={() => {
           
           cihazDogrulama(selectedDevice.id),
@@ -157,7 +158,7 @@ const Kurulum = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8F4E1',
+    backgroundColor: '#F3F8FF',
     padding: 16,
   },
   scanButton: {
@@ -234,7 +235,7 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     width: '90%',
-    backgroundColor: '#F8F4E1',
+    backgroundColor: '#F0F3FF',
     borderRadius: 8,
     padding: 16,
     alignItems: 'center',

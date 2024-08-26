@@ -1,5 +1,5 @@
 import React, { useContext, useState,useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet,Image,Linking } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 import { DeviceContext } from './Context/DevicesContext';
  import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -60,6 +60,7 @@ useEffect(() => {
   return (
     <View style={styles.container}>
       <View style={styles.formContainer}>
+        <Image source={require('./assets/noronlogo.png')} style={styles.image} resizeMode='contain' />
         <Text style={styles.title}>Giriş Yap</Text>
         {error ? <Text style={styles.errorText}>{error}</Text> : null}
         <TextInput
@@ -70,13 +71,20 @@ useEffect(() => {
           onChangeText={setKartNo}
           keyboardType="numeric"
         />
-        <TouchableOpacity style={styles.loginButton} onPress={()=>{handleLogin(kartNo)}}>
+        <TouchableOpacity style={styles.loginButton} onPress={() => { handleLogin(kartNo) }}>
           <Text style={styles.buttonText}>Giriş Yap</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.loginButton} onPress={() => { setKurulumState(false) }}>
           <Text style={styles.buttonText}>Kurulum</Text>
         </TouchableOpacity>
-        
+        <View style={styles.mediaIcons}>
+          <TouchableOpacity onPress={() => Linking.openURL('https://noron.com.tr/')}>
+            <Image source={require('./assets/web.png')} style={styles.icons} />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => Linking.openURL('https://www.linkedin.com/company/n%C3%B6ron-teknoloji/mycompany/')}>
+            <Image source={require('./assets/linkedin.png')} style={styles.icons} />
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
   );
@@ -85,12 +93,29 @@ useEffect(() => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8F4E1',
-    justifyContent: 'center',
+    paddingTop:130,
+    backgroundColor: '#F3F8FF',
+    justifyContent: 'flex-start',
     alignItems: 'center',
   },
+  icons : {
+    width : 40,
+    height: 40,
+  },
+  mediaIcons : {
+    marginTop:50,
+    flexDirection : "row",
+    gap : 15,
+    alignItems: "center",
+    justifyContent : "center",
+    marginBottom : 13
+  },
+  image : {
+    height : 200,
+    width : 200,
+  },
   formContainer: {
-    backgroundColor: '#F8F4E1',
+    backgroundColor: '#F3F8FF',
     padding: 20,
     borderRadius: 10,
     width: '80%',
@@ -117,12 +142,12 @@ const styles = StyleSheet.create({
     color: 'darkblue',
   },
   loginButton: {
-    backgroundColor: '#2E236C',
-    padding: 10,
-    borderRadius: 5,
+    backgroundColor: '#211951',
+    padding: 15,
+    borderRadius: 15,
     width: '100%',
     alignItems: 'center',
-    marginTop: 10,
+    marginTop: 20,
   },
   buttonText: {
     color: '#FFFFFF',

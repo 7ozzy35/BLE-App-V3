@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
     padding: 25,
-    backgroundColor: '#F8F4E1',
+    backgroundColor: '#F0F3FF',
   },
   text: {
     color: '#fff',
@@ -128,7 +128,7 @@ const styles = StyleSheet.create({
     width: 120,
     height: 120,
     borderRadius: 60,
-    backgroundColor: '#2E236C',
+    backgroundColor: '#211951',
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#000',
