@@ -120,6 +120,12 @@ const App = ({ navigation }) => {
       const user = users[editIndex];
   
       try {
+        // Eğer kullanıcı Yetki true ise silme işlemini engelle
+        if (user.Yetki) {
+          alert('Yönetici  kartı silinemez');
+          return; // İşlemi durdur
+        }
+  
         // User'ın deleteItem özelliğini true olarak güncelle
         await firestore()
           .collection(myId)
@@ -145,9 +151,40 @@ const App = ({ navigation }) => {
       }
     }
   };
+  
+  
   const confirmDeleteUser = () => {
     setIsDeleteModalVisible(true);
   };
+  
+  const yetkilendir = async () => {
+    if (editIndex !== null) {
+      const user = users[editIndex];
+  
+      try {
+        await firestore()
+          .collection(myId)
+          .doc(user.id)
+          .update({ Yetki: true });
+  
+        const updatedUsers = users.map((u, i) =>
+          i === editIndex ? { ...u, Yetki: true } : u
+        );
+        setUsers(updatedUsers);
+        setFilteredUsers(updatedUsers);
+  
+        setCardNumber('');
+        setApartmentNumber('');
+        setEditIndex(null);
+        setModalVisible(false);
+        // Onay modalını kapat
+        Alert.alert('Karta admin yönetici yetkisi verildi.');
+      } catch (error) {
+        console.error('Error updating user: ', error);
+      }
+    }
+  };
+
 
   const handleCancelDelete = () => {
     setIsDeleteModalVisible(false);
@@ -225,7 +262,7 @@ const App = ({ navigation }) => {
             <Text style={styles.userText}>{item["Kart No"]}</Text>
             <Text style={styles.userText}>{item["Daire No"]}</Text>
             <TouchableOpacity style={styles.editButton} onPress={() => handleEditUser(index, item["Kart No"], item["Daire No"])}>
-              <Text style={styles.buttonText}>Düzenle</Text>
+              <Text style={styles.buttonText}>Düzenle/Yetkilendir</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -240,7 +277,7 @@ const App = ({ navigation }) => {
       >
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalHeaderText}>Kullanıcı Düzenle</Text>
+            <Text style={styles.modalHeaderText}>Kullanıcı Düzenle/Yetkilendir</Text>
             <Text style={styles.currentInfoText}>Mevcut Kart Numarası: {cardNumber}</Text>
             <Text style={styles.currentInfoText}>Mevcut Daire Numarası: {apartmentNumber}</Text>
             <TextInput
@@ -264,6 +301,9 @@ const App = ({ navigation }) => {
             </TouchableOpacity>
             <TouchableOpacity style={styles.saveButton} onPress={confirmDeleteUser}>
               <Text style={styles.saveButtonText}>Kullanıcıyı Sil</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.saveButton} onPress={yetkilendir}>
+              <Text style={styles.saveButtonText}>Kullanıcıyı Yetkilendir</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.cancelButton} onPress={() => setModalVisible(false)}>
               <Text style={styles.cancelButtonText}>İptal</Text>

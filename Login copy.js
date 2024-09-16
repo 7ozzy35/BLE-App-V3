@@ -1,10 +1,8 @@
-// LoginScreen.js
-import React, { useContext, useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Linking } from 'react-native';
+import React, { useContext, useState,useEffect } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet,Image,Linking } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 import { DeviceContext } from './Context/DevicesContext';
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import PinScreen from './PinScreen';
+ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const LoginScreen = ({ navigation }) => {
   const { myId,userToken, setUserToken, kartNo, setKartNo, kurulumState, setKurulumState } = useContext(DeviceContext);
@@ -15,23 +13,24 @@ const LoginScreen = ({ navigation }) => {
 
   const LoginControl =  async () => {
     const gelenDeger =await AsyncStorage.getItem("my-CardNumber");
-    if(gelenDeger){
-      handleLogin(gelenDeger)
+    if(myId){
+      handleLogin(myId)
     }
-  };
+  }
 
-  useEffect(() => {
-    LoginControl();
-  }, []);
+useEffect(() => {
+  LoginControl()
+}, [])
 
   const handleLogin = async (kartNo1) => {
     setError('');
     const gelenDeger = await AsyncStorage.getItem("my-key");
-    await AsyncStorage.setItem("my-CardNumber", kartNo);
+    await AsyncStorage.setItem("my-CardNumber",kartNo);
     try {
-      console.log("my Id nedir acaba ==>>", gelenDeger);
+      
+      console.log("my Id nedir acaba ==>>",gelenDeger)
       const userSnapshot = await firestore()
-        .collection(gelenDeger)
+        .collection("12:6C:14:38:54:50")
         .where('Kart No', '==', kartNo1)
         .limit(1)
         .get();
@@ -94,26 +93,26 @@ const LoginScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 130,
+    paddingTop:130,
     backgroundColor: '#F3F8FF',
     justifyContent: 'flex-start',
     alignItems: 'center',
   },
-  icons: {
-    width: 40,
+  icons : {
+    width : 40,
     height: 40,
   },
-  mediaIcons: {
-    marginTop: 50,
-    flexDirection: "row",
-    gap: 15,
+  mediaIcons : {
+    marginTop:50,
+    flexDirection : "row",
+    gap : 15,
     alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 13,
+    justifyContent : "center",
+    marginBottom : 13
   },
-  image: {
-    height: 200,
-    width: 200,
+  image : {
+    height : 200,
+    width : 200,
   },
   formContainer: {
     backgroundColor: '#F3F8FF',
