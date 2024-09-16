@@ -15,7 +15,7 @@ export const DeviceProvider = ({ children }) => {
 
    // Benzersiz sayılar için küme
 
-  const [myId, setMyId] = useState('myID boşşşş');
+  const [myId, setMyId] = useState("12:6C:14:38:54:50");
   const [kurulumState, setKurulumState] = useState(true);
   const [kartNo, setKartNo] = useState('');
   const [kartSayisi, setKartSayisi] = useState(0);
