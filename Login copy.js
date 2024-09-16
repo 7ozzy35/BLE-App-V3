@@ -1,53 +1,36 @@
-// LoginScreen.js
-import React, {useContext, useState, useEffect} from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  Image,
-  Linking,
-} from 'react-native';
+import React, { useContext, useState,useEffect } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet,Image,Linking } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
-import {DeviceContext} from './Context/DevicesContext';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import PinScreen from './PinScreen';
+import { DeviceContext } from './Context/DevicesContext';
+ import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const LoginScreen = ({navigation}) => {
-  const {
-    myId,
-    userToken,
-    setUserToken,
-    kartNo,
-    setKartNo,
-    kurulumState,
-    setKurulumState,
-  } = useContext(DeviceContext);
+const LoginScreen = ({ navigation }) => {
+  const { myId,userToken, setUserToken, kartNo, setKartNo, kurulumState, setKurulumState } = useContext(DeviceContext);
 
   const [phone, setPhone] = useState('');
   const [error, setError] = useState('');
-  const [kartNoLocal, setKartNoLocal] = useState(null);
+  const [kartNoLocal, setKartNoLocal] = useState(null)
 
-  const LoginControl = async () => {
-    const gelenDeger = await AsyncStorage.getItem('my-CardNumber');
-    if (gelenDeger) {
-      handleLogin(gelenDeger);
+  const LoginControl =  async () => {
+    const gelenDeger =await AsyncStorage.getItem("my-CardNumber");
+    if(myId){
+      handleLogin(myId)
     }
-  };
+  }
 
-  useEffect(() => {
-    LoginControl();
-  }, []);
+useEffect(() => {
+  LoginControl()
+}, [])
 
-  const handleLogin = async kartNo1 => {
+  const handleLogin = async (kartNo1) => {
     setError('');
-    const gelenDeger = await AsyncStorage.getItem('my-key');
-    await AsyncStorage.setItem('my-CardNumber', kartNo);
+    const gelenDeger = await AsyncStorage.getItem("my-key");
+    await AsyncStorage.setItem("my-CardNumber",kartNo);
     try {
-      console.log('my Id nedir acaba ==>>', gelenDeger);
+      
+      console.log("my Id nedir acaba ==>>",gelenDeger)
       const userSnapshot = await firestore()
-        .collection(gelenDeger)
+        .collection("12:6C:14:38:54:50")
         .where('Kart No', '==', kartNo1)
         .limit(1)
         .get();
@@ -77,11 +60,7 @@ const LoginScreen = ({navigation}) => {
   return (
     <View style={styles.container}>
       <View style={styles.formContainer}>
-        <Image
-          source={require('./assets/noronlogo.png')}
-          style={styles.image}
-          resizeMode="contain"
-        />
+        <Image source={require('./assets/noronlogo.png')} style={styles.image} resizeMode='contain' />
         <Text style={styles.title}>Giriş Yap</Text>
         {error ? <Text style={styles.errorText}>{error}</Text> : null}
         <TextInput
@@ -92,35 +71,18 @@ const LoginScreen = ({navigation}) => {
           onChangeText={setKartNo}
           keyboardType="numeric"
         />
-        <TouchableOpacity
-          style={styles.loginButton}
-          onPress={() => {
-            handleLogin(kartNo);
-          }}>
+        <TouchableOpacity style={styles.loginButton} onPress={() => { handleLogin(kartNo) }}>
           <Text style={styles.buttonText}>Giriş Yap</Text>
         </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.loginButton}
-          onPress={() => {
-            setKurulumState(false);
-          }}>
+        <TouchableOpacity style={styles.loginButton} onPress={() => { setKurulumState(false) }}>
           <Text style={styles.buttonText}>Kurulum</Text>
         </TouchableOpacity>
         <View style={styles.mediaIcons}>
-          <TouchableOpacity
-            onPress={() => Linking.openURL('https://noron.com.tr/')}>
+          <TouchableOpacity onPress={() => Linking.openURL('https://noron.com.tr/')}>
             <Image source={require('./assets/web.png')} style={styles.icons} />
           </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() =>
-              Linking.openURL(
-                'https://www.linkedin.com/company/n%C3%B6ron-teknoloji/mycompany/',
-              )
-            }>
-            <Image
-              source={require('./assets/linkedin.png')}
-              style={styles.icons}
-            />
+          <TouchableOpacity onPress={() => Linking.openURL('https://www.linkedin.com/company/n%C3%B6ron-teknoloji/mycompany/')}>
+            <Image source={require('./assets/linkedin.png')} style={styles.icons} />
           </TouchableOpacity>
         </View>
       </View>
@@ -131,26 +93,26 @@ const LoginScreen = ({navigation}) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 130,
+    paddingTop:130,
     backgroundColor: '#F3F8FF',
     justifyContent: 'flex-start',
     alignItems: 'center',
   },
-  icons: {
-    width: 40,
+  icons : {
+    width : 40,
     height: 40,
   },
-  mediaIcons: {
-    marginTop: 50,
-    flexDirection: 'row',
-    gap: 15,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 13,
+  mediaIcons : {
+    marginTop:50,
+    flexDirection : "row",
+    gap : 15,
+    alignItems: "center",
+    justifyContent : "center",
+    marginBottom : 13
   },
-  image: {
-    height: 200,
-    width: 200,
+  image : {
+    height : 200,
+    width : 200,
   },
   formContainer: {
     backgroundColor: '#F3F8FF',

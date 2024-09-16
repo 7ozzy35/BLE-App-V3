@@ -1,6 +1,6 @@
 import React, { useState, useContext } from 'react';
-import { View, TextInput, Button, StyleSheet, Text, Alert } from 'react-native';
-import { checkAndAddDocument } from './FirestoreService';
+import { View, TextInput, Alert, StyleSheet, Text } from 'react-native';
+import { checkAndAddOrUpdateDocument } from './FirestoreService';
 import { DeviceContext } from './Context/DevicesContext';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { TouchableOpacity } from 'react-native-gesture-handler';
@@ -12,9 +12,13 @@ const CheckCardPage = () => {
   const handleCheckCard = async () => {
     try {
       const gelenDeger = await AsyncStorage.getItem("my-key");
-      const result = await checkAndAddDocument(gelenDeger, cardNo);
-      setKurulumState(true);
-      Alert.alert('Success', result);
+      const result = await checkAndAddOrUpdateDocument(gelenDeger, cardNo);
+      if (result === 'Kart Numarası kayıtlı değil') {
+        setKurulumState(false);
+      } else {
+        setKurulumState(true);
+      }
+      Alert.alert('Sonuç', result);
     } catch (error) {
       Alert.alert('Error', 'Bilinmeyen bir hata oluştu');
     }
@@ -42,7 +46,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     color: 'black',
-    backgroundColor: '#F8F4E1',
+    backgroundColor: '#F0F3FF',
     justifyContent: 'center',
     padding: 20,
   },
