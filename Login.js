@@ -30,7 +30,9 @@ const LoginScreen = ({navigation}) => {
   const [kartNoLocal, setKartNoLocal] = useState(null);
 
   const LoginControl = async () => {
+    //Cihaz yokken giriş için yapıldı
     const gelenDeger = await AsyncStorage.getItem('my-CardNumber');
+    await AsyncStorage.setItem('my-key', '12:6C:14:38:54:50');
     if (gelenDeger) {
       handleLogin(gelenDeger);
     }
@@ -42,6 +44,7 @@ const LoginScreen = ({navigation}) => {
 
   const handleLogin = async kartNo1 => {
     setError('');
+
     const gelenDeger = await AsyncStorage.getItem('my-key');
     await AsyncStorage.setItem('my-CardNumber', kartNo);
     try {
