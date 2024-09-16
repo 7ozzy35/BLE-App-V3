@@ -1,38 +1,89 @@
-import React, { useContext,useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image, TouchableNativeFeedback } from 'react-native';
-import { DeviceContext } from './Context/DevicesContext';
+import React, {useContext, useEffect} from 'react';
+import firestore from '@react-native-firebase/firestore';
+
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Image,
+  TouchableNativeFeedback,
+} from 'react-native';
+import {DeviceContext} from './Context/DevicesContext';
 import Icon from 'react-native-vector-icons/Octicons';
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const App = ({navigation}) => {
-  const {  myId,setMyId,kartNo, setKartNo,setUserToken,handleDoorOpen,isButtonDisabled } = useContext(DeviceContext);
+  const {
+    myId,
+    setMyId,
+    kartNo,
+    setKartNo,
+    setUserToken,
+    handleDoorOpen,
+    isButtonDisabled,
+  } = useContext(DeviceContext);
 
-  const  IdControl = async () => {
-    const gelenDeger = await AsyncStorage.getItem("my-key");
-    console.log(gelenDeger)
-     setMyId(gelenDeger)
-    }
-  
-  
-    useEffect(() => {
-      IdControl();
-      console.log
-  
-    }, [])
+  const IdControl = async () => {
+    const gelenDeger = await AsyncStorage.getItem('my-key');
+    console.log(gelenDeger);
+    setMyId(gelenDeger);
+  };
 
-    const CardSil =  async () => {
-      await AsyncStorage.removeItem("my-CardNumber");
+  const checkPaymentStatus = async () => {
+    try {
+      console.log(kartNo);
+      console.log(myId);
+      const paymentDoc = await firestore()
+        .collection(myId)
+        .where('Kart No', '==', kartNo)
+        .get();
+      const userPay = paymentDoc.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      console.log('veritabanı pay değerleri ==== ', userPay[0].Pay);
+
+      if (paymentDoc.exists) {
+        const paymentData = paymentDoc.data();
+        if (paymentData.Pay === true) {
+          console.log('Ödeme başarılı');
+        } else {
+          console.log('Ödeme başarısız');
+        }
+      } else {
+        console.log('Ödeme bilgisi bulunamadı');
+      }
+    } catch (error) {
+      console.error('Ödeme durumu kontrol edilirken hata oluştu:', error);
     }
+  };
+
+  useEffect(() => {
+    IdControl();
+    checkPaymentStatus();
+  }, []);
+
+  const CardSil = async () => {
+    await AsyncStorage.removeItem('my-CardNumber');
+  };
 
   return (
     <View style={styles.container}>
       <View style={styles.headerContainer}>
         <Text style={styles.headerText}>Kullanıcı Ekranı</Text>
-        <TouchableOpacity style={styles.iconButton} onPress={() => { }}>
-          <Image source={require('./assets/gear_icon.png')} style={styles.icon} />
+        <TouchableOpacity style={styles.iconButton} onPress={() => {}}>
+          <Image
+            source={require('./assets/gear_icon.png')}
+            style={styles.icon}
+          />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.iconButton} onPress={() => { navigation.replace("Login"),setUserToken(false),CardSil() }}>
-        <Icon name={"sign-out"} size={24} color="gray" />
+        <TouchableOpacity
+          style={styles.iconButton}
+          onPress={() => {
+            navigation.replace('Login'), setUserToken(false), CardSil();
+          }}>
+          <Icon name={'sign-out'} size={24} color="gray" />
         </TouchableOpacity>
       </View>
       {/* <View>
@@ -47,11 +98,13 @@ const App = ({navigation}) => {
         </View>
       )} */}
       <TouchableNativeFeedback
-        onPress={()=>{console.log("kart numarası .:",kartNo),handleDoorOpen(kartNo)}}
-        background={TouchableNativeFeedback.Ripple('#FFBF78', true,-20)}
-        disabled={isButtonDisabled}
-      >
-        <View style={[styles.button, isButtonDisabled && styles.disabledButton]}>
+        onPress={() => {
+          console.log('kart numarası .:', kartNo), handleDoorOpen(kartNo);
+        }}
+        background={TouchableNativeFeedback.Ripple('#FFBF78', true, -20)}
+        disabled={isButtonDisabled}>
+        <View
+          style={[styles.button, isButtonDisabled && styles.disabledButton]}>
           <Text style={styles.buttonText}>KAPI AÇ</Text>
         </View>
       </TouchableNativeFeedback>
@@ -87,7 +140,7 @@ const styles = StyleSheet.create({
   },
 
   button: {
-    position: "absolute",
+    position: 'absolute',
     bottom: 185,
     width: 150,
     height: 150,
@@ -96,11 +149,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.8,
     shadowRadius: 2,
     elevation: 5,
     margin: 10,
+  },
+  disabledButton: {
+    backgroundColor: '#999999',
   },
   text: {
     color: '#fff',
@@ -108,7 +164,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
   },
-  
+
   doorOpenButton: {
     backgroundColor: '#ff9800',
     padding: 16,
@@ -121,7 +177,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
- 
 });
 
 export default App;

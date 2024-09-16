@@ -1,34 +1,47 @@
-import React, { useContext, useState,useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import React, {useContext, useState, useEffect} from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+} from 'react-native';
 import firestore from '@react-native-firebase/firestore';
-import { DeviceContext } from './Context/DevicesContext';
- import AsyncStorage from "@react-native-async-storage/async-storage";
+import {DeviceContext} from './Context/DevicesContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const LoginScreen = ({ navigation }) => {
-  const { myId,userToken, setUserToken, kartNo, setKartNo, kurulumState, setKurulumState } = useContext(DeviceContext);
+const LoginScreen = ({navigation}) => {
+  const {
+    myId,
+    userToken,
+    setUserToken,
+    kartNo,
+    setKartNo,
+    kurulumState,
+    setKurulumState,
+  } = useContext(DeviceContext);
 
   const [phone, setPhone] = useState('');
   const [error, setError] = useState('');
-  const [kartNoLocal, setKartNoLocal] = useState(null)
+  const [kartNoLocal, setKartNoLocal] = useState(null);
 
-  const LoginControl =  async () => {
-    const gelenDeger =await AsyncStorage.getItem("my-CardNumber");
-    if(gelenDeger){
-      handleLogin(gelenDeger)
+  const LoginControl = async () => {
+    const gelenDeger = await AsyncStorage.getItem('my-CardNumber');
+    if (gelenDeger) {
+      handleLogin(gelenDeger);
     }
-  }
+  };
 
-useEffect(() => {
-  LoginControl()
-}, [])
+  useEffect(() => {
+    LoginControl();
+  }, []);
 
-  const handleLogin = async (kartNo1) => {
+  const handleLogin = async kartNo1 => {
     setError('');
-    const gelenDeger = await AsyncStorage.getItem("my-key");
-    await AsyncStorage.setItem("my-CardNumber",kartNo);
+    const gelenDeger = await AsyncStorage.getItem('my-key');
+    await AsyncStorage.setItem('my-CardNumber', kartNo1);
     try {
-      
-      console.log("my Id nedir acaba ==>>",gelenDeger)
+      console.log('my Id nedir acaba ==>>', gelenDeger);
       const userSnapshot = await firestore()
         .collection(gelenDeger)
         .where('Kart No', '==', kartNo1)
@@ -70,13 +83,20 @@ useEffect(() => {
           onChangeText={setKartNo}
           keyboardType="numeric"
         />
-        <TouchableOpacity style={styles.loginButton} onPress={()=>{handleLogin(kartNo)}}>
+        <TouchableOpacity
+          style={styles.loginButton}
+          onPress={() => {
+            handleLogin(kartNo);
+          }}>
           <Text style={styles.buttonText}>Giriş Yap</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.loginButton} onPress={() => { setKurulumState(false) }}>
+        <TouchableOpacity
+          style={styles.loginButton}
+          onPress={() => {
+            setKurulumState(false);
+          }}>
           <Text style={styles.buttonText}>Kurulum</Text>
         </TouchableOpacity>
-        
       </View>
     </View>
   );

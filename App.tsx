@@ -7,6 +7,9 @@ import FlashMessage from 'react-native-flash-message'
 
 
 const App = () => {
+
+
+  
   return (
     <DeviceProvider>
       <Routes />
