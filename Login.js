@@ -32,7 +32,7 @@ const LoginScreen = ({navigation}) => {
   const LoginControl = async () => {
     //Cihaz yokken giriş için yapıldı
     const gelenDeger = await AsyncStorage.getItem('my-CardNumber');
-    await AsyncStorage.setItem('my-key', '12:6C:14:38:54:50');
+    // await AsyncStorage.setItem('my-key', '12:6C:14:38:54:50');
     if (gelenDeger) {
       handleLogin(gelenDeger);
     }
