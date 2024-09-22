@@ -1,42 +1,31 @@
 import firestore from '@react-native-firebase/firestore';
 
-const checkAndAddOrUpdateDocument = async (collectionName, cardNo) => {
+const checkAndAddDocument = async (collectionName, cardNo) => {
   try {
     const collectionRef = firestore().collection(collectionName);
     const querySnapshot = await collectionRef.where('Kart No', '==', cardNo).get();
 
-    if (querySnapshot.empty) {
+    if (!querySnapshot.empty) {
+      return 'Kart Numarası zaten kayıtlı';
+    } else {
       const collectionSnapshot = await collectionRef.get();
       const isCollectionEmpty = collectionSnapshot.empty;
-
-      if (isCollectionEmpty) {
-        await collectionRef.add({
-          'Daire No': '',
-          'Kart No': cardNo,
-          'Onay': true,
-          'Pay': true,
-          'Yetki': true,
-        });
-        return 'Yeni Cihaz Girişi oluşturuldu ve kart numarası yetki ve onay ile eklendi';
-      } else {
-        return 'Kart Numarası kayıtlı değil';
-      }
-    } else {
-      const documentRef = querySnapshot.docs[0].ref;
-      await documentRef.update({
+      
+      await collectionRef.add({
+        'Daire No': '',
+        'Kart No': cardNo,
         'Onay': true,
-
         'Pay': true,
         'DeleteItem': false,        
         
         'Yetki': isCollectionEmpty ? true : false,
       });
-      return 'Kart Numarası kaydedildi artık giriş yapabilirsin';
+      return isCollectionEmpty ? 'Yeni Cihaz Girişi oluşturuldu ve kart numarası yetki ve onay ile eklendi' : 'Kart numarası cihaza kaydedildi oluşturuldu';
     }
   } catch (error) {
-    console.error('Error checking or adding/updating document: ', error);
+    console.error('Error checking or adding document: ', error);
     throw new Error('Bir hata oluştu');
   }
 };
 
-export { checkAndAddOrUpdateDocument };
+export { checkAndAddDocument };

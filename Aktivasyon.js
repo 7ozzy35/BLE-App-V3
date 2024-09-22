@@ -1,18 +1,18 @@
-import React, { useState, useContext } from 'react';
-import { View, TextInput, Alert, StyleSheet, Text } from 'react-native';
-import { checkAndAddOrUpdateDocument } from './FirestoreService';
-import { DeviceContext } from './Context/DevicesContext';
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { TouchableOpacity } from 'react-native-gesture-handler';
+import React, {useState, useContext} from 'react';
+import {View, TextInput, Alert, StyleSheet, Text} from 'react-native';
+import {checkAndAddDocument} from './FirestoreService';
+import {DeviceContext} from './Context/DevicesContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {TouchableOpacity} from 'react-native-gesture-handler';
 
 const CheckCardPage = () => {
   const [cardNo, setCardNo] = useState('');
-  const { kurulumState, setKurulumState } = useContext(DeviceContext);
+  const {kurulumState, setKurulumState} = useContext(DeviceContext);
 
   const handleCheckCard = async () => {
     try {
-      const gelenDeger = await AsyncStorage.getItem("my-key");
-      const result = await checkAndAddOrUpdateDocument(gelenDeger, cardNo);
+      const gelenDeger = await AsyncStorage.getItem('my-key');
+      const result = await checkAndAddDocument(gelenDeger, cardNo);
       if (result === 'Kart Numarası kayıtlı değil') {
         setKurulumState(false);
       } else {
@@ -33,7 +33,7 @@ const CheckCardPage = () => {
         placeholderTextColor={'black'}
         value={cardNo}
         onChangeText={setCardNo}
-        keyboardType='numeric'
+        keyboardType="numeric"
       />
       <TouchableOpacity style={styles.loginButton} onPress={handleCheckCard}>
         <Text style={styles.buttonText}>Kart No Ekle</Text>
