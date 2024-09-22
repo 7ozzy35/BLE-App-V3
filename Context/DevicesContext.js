@@ -29,6 +29,8 @@ export const DeviceProvider = ({children}) => {
   const [disconnectButtonVisible, setDisconnectButtonVisible] = useState(false);
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
 
+  
+  
   const resetBleManager = () => {
     bleManager.destroy();
     setTimeout(() => {
@@ -80,7 +82,9 @@ export const DeviceProvider = ({children}) => {
 
         device.autoDisconnectTimeout = autoDisconnectTimeout;
       } catch (error) {
-        console.log('Failed to open door:', error);
+        console.log('Failed to open door:5', error);
+        console.log("Kapı açma hatası:", error.message);
+        console.log("Detaylı hata sebebi:", error.reason);
         if (error.message.includes('BleManager was destroyed')) {
           console.log('BLE Manager destroyed, resetting...');
           resetBleManager();

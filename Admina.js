@@ -8,7 +8,7 @@ const App = ({ navigation }) => {
 
   const {  myId,setMyId,kartNo, setKartNo,setUserToken,handleDoorOpen,isButtonDisabled } = useContext(DeviceContext);
   
-
+  const [showConfirmationModal, setShowConfirmationModal] = useState(false);
   const [name, setName] = useState('');
   const [surname, setSurname] = useState('');
   const [cardNumber, setCardNumber] = useState('');
@@ -155,7 +155,7 @@ const App = ({ navigation }) => {
   
   const confirmDeleteUser = () => {
     setIsDeleteModalVisible(true);
-  };
+  };  
   
   const yetkilendir = async () => {
     if (editIndex !== null) {
@@ -184,6 +184,16 @@ const App = ({ navigation }) => {
       }
     }
   };
+
+  const handleConfirmYes = () => {
+    setShowConfirmationModal(false); // Modalı kapat
+    yetkilendir(); // Yetkilendirme işlemini gerçekleştir
+  };
+
+  const handleConfirmNo = () => {
+    setShowConfirmationModal(false); // Modalı kapat, işlem yapılmaz
+  };
+
 
 
   const handleCancelDelete = () => {
@@ -302,7 +312,7 @@ const App = ({ navigation }) => {
             <TouchableOpacity style={styles.saveButton} onPress={confirmDeleteUser}>
               <Text style={styles.saveButtonText}>Kullanıcıyı Sil</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.saveButton} onPress={yetkilendir}>
+            <TouchableOpacity style={styles.saveButton} onPress={() => setShowConfirmationModal(true)}>
               <Text style={styles.saveButtonText}>Kullanıcıyı Yetkilendir</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.cancelButton} onPress={() => setModalVisible(false)}>
@@ -312,6 +322,27 @@ const App = ({ navigation }) => {
         </View>
       </Modal>
 
+      <Modal
+        visible={showConfirmationModal}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setShowConfirmationModal(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalText}>Kullanıcıyı yetkilendirmek istediğinize emin misiniz?</Text>
+            <View style={styles.modalButtons}>
+              <TouchableOpacity style={styles.confirmButton} onPress={handleConfirmYes}>
+                <Text style={styles.confirmButtonText}>Evet</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.cancelButton} onPress={handleConfirmNo}>
+                <Text style={styles.cancelButtonText}>Hayır</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+          
       <Modal
         visible={isDeleteModalVisible}
         transparent={true}

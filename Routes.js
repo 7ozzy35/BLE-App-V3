@@ -1,7 +1,8 @@
 import {View, Text} from 'react-native';
-import React, {useContext} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
+import {PermissionsAndroid, Platform} from 'react-native';
 
 import {DeviceContext} from './Context/DevicesContext';
 import Login from './Login';
@@ -18,8 +19,41 @@ import PayTr from './PayTrDeneme';
 import Background from './Background';
 
 const Stack = createStackNavigator();
+
 const Routes = () => {
   const {userToken, kurulumState} = useContext(DeviceContext);
+  const [permissionsGranted, setPermissionsGranted] = useState(false);
+
+  useEffect(() => {
+    const requestPermissions = async () => {
+      if (Platform.OS === 'android' && Platform.Version >= 23) {
+        try {
+          const granted = await PermissionsAndroid.requestMultiple([
+            PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+            PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
+            PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
+          ]);
+
+          if (
+            granted['android.permission.ACCESS_FINE_LOCATION'] === PermissionsAndroid.RESULTS.GRANTED &&
+            granted['android.permission.BLUETOOTH_SCAN'] === PermissionsAndroid.RESULTS.GRANTED &&
+            granted['android.permission.BLUETOOTH_CONNECT'] === PermissionsAndroid.RESULTS.GRANTED
+          ) {
+            console.log('Location and Bluetooth permissions granted');
+            setPermissionsGranted(true);
+          } else {
+            console.log('Location and/or Bluetooth permissions denied');
+          }
+        } catch (err) {
+          console.warn(err);
+        }
+      } else {
+        setPermissionsGranted(true); // Assume permissions are granted on iOS
+      }
+    };
+
+    requestPermissions();
+  }, []);
 
   return (
     <NavigationContainer>
@@ -86,21 +120,18 @@ const Routes = () => {
               </Stack.Group>
             ) : (
               <Stack.Group initialRouteName="Login">
-                <Stack.Screen
-                  name="Login"
-                  component={Login}
-                  options={{headerShown: false}}
-                />
-                <Stack.Screen
-                  name="SignUp"
-                  component={SignUp}
-                  options={{headerShown: false}}
-                />
+                <Stack.Screen name="Login" component={Login} />
+                <Stack.Screen name="SignUp" component={SignUp} />
               </Stack.Group>
             )}
           </>
         )}
       </Stack.Navigator>
+      {!permissionsGranted && (
+        <View>
+          <Text>Please grant the required permissions to use the app.</Text>
+        </View>
+      )}
     </NavigationContainer>
   );
 };
